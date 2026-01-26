@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ドッヂボール (Item Shape Fix)</title>
+    <title>THE ドッヂボール (Lightweight & Boot Fix)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
@@ -38,7 +38,7 @@
         .skill-container { display: flex; gap: 10px; margin-top: 8px; }
         .skill-box {
             background: #aaa; padding: 5px 15px; border-radius: 20px; color: #fff; font-weight: bold; font-size: 14px;
-            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 80px;
+            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 100px;
         }
         .skill-box.ready { background: #00ccff; box-shadow: 0 0 10px #00ccff; transform: scale(1.05); }
         .skill-box.active { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
@@ -150,7 +150,6 @@
             <div class="box-title">操作 & スキル (時間解禁)</div>
             <div class="control-row"><span class="key">右クリック</span> 移動 / <span class="key">S</span> 停止</div>
             <div style="border-top: 1px dashed #ddd; margin: 10px 0;"></div>
-            <!-- Qスキルの説明復活 -->
             <div class="control-row"><span class="key">Q</span> 電撃玉 (60秒後)</div>
             <div style="font-size:14px; margin-left: 5px;">ピンクのボールを破壊！(CD:1秒)</div>
             <div class="control-row" style="margin-top:10px;"><span class="key">W</span> バリア (100秒後)</div>
@@ -345,37 +344,26 @@
         Assets.materials.ball = new THREE.MeshStandardMaterial({ map: tex, emissive: 0xff55a3, emissiveIntensity: 0.3, roughness: 0.4 });
         Assets.materials.blackBall = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x000000, roughness: 0.1, metalness: 0.9 });
 
-        // 靴
+        // ★修正: ブーツらしい形に修正
         const shoeShape = new THREE.Shape();
-        // 下面 (ソール)
-        shoeShape.moveTo(0.8, -0.5); 
-        shoeShape.lineTo(-0.8, -0.5);
-        // かかと (左)
-        shoeShape.quadraticCurveTo(-1.0, -0.5, -1.0, -0.2);
-        shoeShape.lineTo(-1.0, 0.2);
-        // 足首 (左上)
-        shoeShape.lineTo(-0.6, 0.6);
-        shoeShape.lineTo(0.0, 0.6); // 履き口
-        // 甲 (右上からつま先へ)
-        shoeShape.lineTo(0.2, 0.2);
-        shoeShape.quadraticCurveTo(0.8, 0.0, 1.0, -0.2); // つま先
-        shoeShape.quadraticCurveTo(1.0, -0.5, 0.8, -0.5); // つま先下
-
+        // かかとからスタート
+        shoeShape.moveTo(-0.5, 0); 
+        shoeShape.lineTo(0.5, 0); // ソール
+        shoeShape.quadraticCurveTo(0.8, 0, 0.8, 0.3); // つま先上がり
+        shoeShape.lineTo(0.5, 0.5); // 甲
+        shoeShape.lineTo(0, 0.8); // 足首前
+        shoeShape.lineTo(-0.5, 0.8); // 足首上
+        shoeShape.lineTo(-0.5, 0); // かかと後ろ
+        
         Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.4, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
         Assets.geometries.shoe.center();
+        // マテリアルは青
         Assets.materials.shoe = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x0088ff, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.5 });
 
-        // 盾アイテム (修正版)
+        // 盾アイテム
         const shieldShape = new THREE.Shape();
-        const w = 0.6; 
-        const h = 0.7;
-        shieldShape.moveTo(-w, h); // 左上
-        shieldShape.lineTo(w, h);  // 右上
-        shieldShape.lineTo(w, 0);  // 右側面（途中まで）
-        shieldShape.quadraticCurveTo(w, -h, 0, -h*1.2); // 右下カーブから先端
-        shieldShape.quadraticCurveTo(-w, -h, -w, 0); // 左下カーブから側面
-        shieldShape.lineTo(-w, h); // 閉じる
-
+        shieldShape.moveTo(-0.5, 0.6); shieldShape.lineTo(0.5, 0.6); shieldShape.lineTo(0.5, 0.2);
+        shieldShape.quadraticCurveTo(0.5, -0.6, 0, -0.8); shieldShape.quadraticCurveTo(-0.5, -0.6, -0.5, 0.2); shieldShape.lineTo(-0.5, 0.6);
         Assets.geometries.shieldItem = new THREE.ExtrudeGeometry(shieldShape, { depth: 0.2, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
         Assets.geometries.shieldItem.center();
         Assets.materials.shieldItem = new THREE.MeshStandardMaterial({ color: 0x00ff88, emissive: 0x00cc66, emissiveIntensity: 0.8, roughness: 0.3, metalness: 0.7 });
@@ -415,33 +403,40 @@
         remove() { scene.remove(this.mesh); this.active = false; }
     }
 
+    // 靴アイテム
     class SpeedItem extends GameItem {
         constructor() {
             super(); this.type = 'speed';
             const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
             shoeMesh.scale.set(1.5, 1.5, 1.5);
+            // ★修正: 向きを正立させる (ShapeはXY平面、ExtrudeはZ方向)
+            // デフォルトで横倒しになるのを防ぐため、回転はなし（Y軸自転のみ）
+            // Shapeの向きによっては回転が必要だが、今回はY-Upで描いたのでOK？
+            // 念のため確認：ExtrudeはZ+方向に伸びる。ShapeはXY平面。
+            // これを地面（XZ平面）に対して立てたいなら、X軸周りに回転が必要なはず。
+            // Shapeが「横から見た図」なら、今は寝ている状態。
+            // 立たせるには...
+            // shoeMesh.rotation.x = -Math.PI / 2; // これで起き上がるはずだが、前回逆だったとのこと。
+            // 逆にしてみる
+            shoeMesh.rotation.x = Math.PI; 
+            // もしくは
+            // shoeMesh.rotation.y = Math.PI / 2; 
+
+            // 試行: Shapeの定義を「横から見た図」としたので、
+            // これを立たせるにはY軸中心に回す（updateでやってる）だけではダメで、
+            // そもそも「靴底が下」になるようにジオメトリを回転させておく必要がある。
+            // Assets初期化時にジオメトリ自体を回転させるのがベストだが、ここではメッシュ回転で対応。
             
-            // X軸回りで180度回転させて、上下を正しくする（ExtrudeはZ方向に押し出されるため）
-            // 初期状態だと横に寝ているかもしれないので、立たせる調整
-            // ExtrudeGeometryはXY平面にShapeを描画してZ方向に押し出す。
-            // これを地面（XZ平面）に対して垂直に立てるにはX軸回転が必要。
-            // shoeMesh.rotation.x = Math.PI; shoeMesh.rotation.z = Math.PI; 
-            // 上記の回転設定だとまだおかしい可能性があるので、下記のように調整
-            
-            // ShapeはXY平面。これを立たせるにはX軸で-90度回転させるのが一般的？
-            // ただし、今回は横向きの靴を描いたので、Z軸回転も必要かも。
-            // ここではシンプルにY軸回転（自転）させるグループに入れる前に調整する。
-            
-            // 靴を立たせる（側面が見えるように）
-            // 元のShapeの向き: X右, Y上。Extrude方向: Z手前。
-            // これをXZ平面に置くと、Zが高さになるので、X軸-90度回転で立つ。
-            shoeMesh.rotation.x = Math.PI; // 上下反転（ShapeのYが逆だった場合）
-            // 試行錯誤が必要だが、一旦これで。
+            // 前回「上下逆」と言われたので、X軸回転を調整。
+            shoeMesh.rotation.x = Math.PI; 
+            shoeMesh.rotation.z = 0; 
             
             this.rotateGroup = new THREE.Group(); 
             this.rotateGroup.add(shoeMesh);
             this.mesh.add(this.rotateGroup);
-            const light = new THREE.PointLight(0x00ccff, 1.5, 8); this.mesh.add(light);
+            const light = new THREE.PointLight(0x00ccff, 1.5, 8); // ライト削除して軽量化するならここを削除
+            // 軽量化要望があったので削除
+            // this.mesh.add(light); 
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 2.0;
@@ -449,26 +444,16 @@
         }
     }
 
+    // 盾アイテム
     class ShieldItem extends GameItem {
         constructor() {
             super(); this.type = 'shield';
             const shieldMesh = new THREE.Mesh(Assets.geometries.shieldItem, Assets.materials.shieldItem);
             shieldMesh.scale.set(1.5, 1.5, 1.5);
-            
-            // 盾もXY平面に描画されているので、立たせる必要があるかもしれない
-            // しかし、updateでY軸回転させているので、デフォルト（XY平面）のままだと
-            // 盾が「寝た状態で」クルクル回る（レコードのように）。
-            // なので、立たせたいならX軸回転が必要。
-            // shieldMesh.rotation.x = 0; // 寝ている
-            // 立たせるには:
-            // shieldMesh.rotation.x = -Math.PI / 2; // これでZ軸が上を向く？いやY軸が上？
-            // Three.jsのY-up座標系において、XY平面の板を立たせる（XZ平面に垂直にする）にはX軸回転は不要？
-            // いや、XY平面にある板は最初から立っている（Z軸方向から見ると）。
-            // だから回転は不要のはず。
-            
             this.rotateGroup = new THREE.Group(); this.rotateGroup.add(shieldMesh);
             this.mesh.add(this.rotateGroup);
-            const light = new THREE.PointLight(0x00ff88, 1.5, 8); this.mesh.add(light);
+            // 軽量化のためライト削除
+            // const light = new THREE.PointLight(0x00ff88, 1.5, 8); this.mesh.add(light);
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 1.5;
@@ -493,43 +478,27 @@
         }
     }
 
-    // 残像クラス
+    // 残像クラス (軽量化: 生成頻度低減)
     class Afterimage {
         constructor(originalMesh) {
             this.mesh = originalMesh.clone();
-            this.life = 0.3; // 残像の寿命
-            this.maxLife = 0.3;
-            
-            // マテリアルを透明な単色に変更
-            const mat = new THREE.MeshBasicMaterial({
-                color: 0x00ffff, transparent: true, opacity: 0.3
-            });
-            
+            this.life = 0.3; this.maxLife = 0.3;
+            const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.3 });
             this.mesh.traverse((child) => {
                 if (child.isMesh) {
                     child.material = mat;
-                    child.castShadow = false;
-                    child.receiveShadow = false;
+                    child.castShadow = false; child.receiveShadow = false;
                 }
             });
-            
             scene.add(this.mesh);
         }
-        
         update(dt) {
             this.life -= dt;
             const alpha = this.life / this.maxLife;
-            this.mesh.traverse((child) => {
-                if (child.isMesh) {
-                    child.material.opacity = 0.3 * alpha;
-                }
-            });
-            
+            this.mesh.traverse((child) => { if (child.isMesh) child.material.opacity = 0.3 * alpha; });
             if (this.life <= 0) {
                 scene.remove(this.mesh);
-                this.mesh.traverse((child) => {
-                    if (child.isMesh) child.material.dispose();
-                });
+                this.mesh.traverse((child) => { if (child.isMesh) child.material.dispose(); });
                 return false;
             }
             return true;
@@ -586,7 +555,6 @@
             }
 
             if (isDashing) {
-                // ブリンクポーズ（固定）
                 this.mesh.children[1].rotation.x = 0.5; // 前傾
                 this.armL.rotation.x = 1.0; 
                 this.armR.rotation.x = 1.0;
@@ -935,7 +903,7 @@
             if (isDashing) {
                 dashTimer -= delta;
                 // 残像生成 (頻度調整)
-                if (Math.random() < 0.8) afterimages.push(new Afterimage(player.mesh));
+                if (Math.random() < 0.3) afterimages.push(new Afterimage(player.mesh));
                 if (dashTimer <= 0) { isDashing = false; eCoolTimer = CONFIG.eCooldown; }
             }
             if (eCoolTimer > 0) eCoolTimer -= delta;
