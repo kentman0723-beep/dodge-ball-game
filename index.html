@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ドッヂボール</title>
+    <title>THE ドッヂボール (Blink Update)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
@@ -31,18 +31,19 @@
         
         .status-line { display: flex; justify-content: center; gap: 20px; margin-top: 5px; }
         .status-text { font-size: 16px; font-weight: bold; color: #fff; padding: 5px 15px; border-radius: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
-        #speed-display { background: #ffcc00; }
-        #shield-display { background: #ff6699; display: none; }
+        #speed-display { background: #00ccff; }
+        #shield-display { background: #00dd66; display: none; }
         
         /* スキルインジケーター */
         .skill-container { display: flex; gap: 10px; margin-top: 8px; }
         .skill-box {
             background: #aaa; padding: 5px 15px; border-radius: 20px; color: #fff; font-weight: bold; font-size: 14px;
-            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 100px;
+            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 80px;
         }
         .skill-box.ready { background: #00ccff; box-shadow: 0 0 10px #00ccff; transform: scale(1.05); }
         .skill-box.active { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
         .skill-box.cooldown { background: #555; color: #999; }
+        .skill-box.ninja-ready { background: #8800ff; box-shadow: 0 0 10px #8800ff; }
 
         .overlay-screen { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
@@ -53,9 +54,9 @@
 
         h1 { font-size: 72px; color: #ff6699; margin: 0 0 20px 0; text-shadow: 3px 3px 0 #fff, 5px 5px 0 #66ccff, 7px 7px 0 #ffcc00; text-align: center; line-height: 1.2; font-weight: 900; }
         
-        .info-wrapper { display: flex; gap: 20px; margin-bottom: 20px; }
+        .info-container-row { display: flex; gap: 20px; justify-content: center; align-items: flex-start; margin-bottom: 20px; }
         .info-box {
-            background: #fff; border: 4px dotted #66ccff; border-radius: 25px; padding: 20px; text-align: left; width: 320px;
+            background: #fff; border: 4px dotted #66ccff; border-radius: 25px; padding: 20px; text-align: left; width: 380px;
             box-shadow: 0 10px 20px rgba(100, 200, 255, 0.2); color: #555;
         }
         .box-title { color: #ff6699; font-weight: 900; margin-bottom: 10px; font-size: 20px; text-align: center; border-bottom: 2px dashed #ffecf2; padding-bottom: 5px; }
@@ -68,9 +69,8 @@
             display: inline-block; width: 28px; height: 28px; margin-right: 10px; border-radius: 50%;
             text-align: center; line-height: 28px; font-size: 18px; background: #fff; border: 2px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .icon-speed { color: #ffcc00; border-color: #ffeeaa; }
-        .icon-heart { color: #ff6699; border-color: #ffaabb; }
-        .icon-skill { color: #00ccff; border-color: #ccffff; font-size: 16px; }
+        .icon-speed { color: #00ccff; border-color: #ccffff; }
+        .icon-shield { color: #00dd66; border-color: #ccffdd; }
 
         .btn-container { display: flex; gap: 20px; align-items: center; margin-bottom: 15px; margin-top: 5px; }
         button.kawaii-btn {
@@ -97,24 +97,26 @@
 
         #result-title { font-size: 80px; color: #ff6699; margin-bottom: 10px; text-shadow: 3px 3px 0 #fff, 6px 6px 0 #ffcc00; }
         #final-score { font-size: 50px; color: #555; margin-bottom: 20px; font-weight: 900; text-shadow: 2px 2px 0 #fff; }
+        
         #loading {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffecf2; color: #ff6699; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             font-size: 32px; font-weight: 900; letter-spacing: 2px; z-index: 200; text-shadow: 2px 2px 0 #fff;
         }
         #error-log { color: #ff5555; font-size: 14px; margin-top: 20px; white-space: pre-wrap; text-align: left; max-width: 80%; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 10px; border: 2px solid #ffaaaa; display: none; }
-        #sound-notice { font-size: 12px; color: #88aaff; margin-top: 10px; font-weight: bold; }
+        
+        #sound-notice { display: none; }
 
-        /* --- ランキング用スタイル --- */
+        /* ランキング */
         #ranking-section {
             background: #fff; border: 4px dotted #ffcc00; border-radius: 20px;
             padding: 20px; width: 90%; max-width: 500px; max-height: 300px; overflow-y: auto;
             margin-bottom: 20px; text-align: left;
         }
         .ranking-row { display: flex; justify-content: space-between; padding: 5px 10px; border-bottom: 1px dashed #eee; }
-        .ranking-row:nth-child(1) { color: #e6b422; font-weight: bold; font-size: 1.2em; } /* 金 */
-        .ranking-row:nth-child(2) { color: #c0c0c0; font-weight: bold; } /* 銀 */
-        .ranking-row:nth-child(3) { color: #b87333; font-weight: bold; } /* 銅 */
+        .ranking-row:nth-child(1) { color: #e6b422; font-weight: bold; font-size: 1.2em; }
+        .ranking-row:nth-child(2) { color: #c0c0c0; font-weight: bold; }
+        .ranking-row:nth-child(3) { color: #b87333; font-weight: bold; }
         .rank-name { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
         #score-input-container { margin-bottom: 20px; display: flex; gap: 10px; }
@@ -124,7 +126,7 @@
         }
     </style>
     <script type="importmap">
-        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+        { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
     </script>
 </head>
 <body>
@@ -142,20 +144,26 @@
 <div id="start-screen" class="overlay-screen">
     <h1>THE ドッヂボール</h1>
     
-    <div class="info-wrapper">
+    <div class="info-container-row">
+        <!-- 操作・スキル説明 -->
         <div class="info-box">
-            <div class="box-title">操作方法 & アイテム</div>
+            <div class="box-title">操作 & スキル (時間解禁)</div>
             <div class="control-row"><span class="key">右クリック</span> 移動 / <span class="key">S</span> 停止</div>
-            <div class="control-row"><span class="item-icon icon-speed">☆</span> スピードUP (永続)</div>
-            <div class="control-row"><span class="item-icon icon-heart">♡</span> ボールを1回防ぐ</div>
-        </div>
-
-        <div class="info-box">
-            <div class="box-title">スキル (時間で解禁)</div>
+            <div style="border-top: 1px dashed #ddd; margin: 10px 0;"></div>
+            <!-- Qスキルの説明復活 -->
             <div class="control-row"><span class="key">Q</span> 電撃玉 (60秒後)</div>
             <div style="font-size:14px; margin-left: 5px;">ピンクのボールを破壊！(CD:1秒)</div>
-            <div class="control-row" style="margin-top:15px;"><span class="key">W</span> バリア (100秒後)</div>
+            <div class="control-row" style="margin-top:10px;"><span class="key">W</span> バリア (100秒後)</div>
             <div style="font-size:14px; margin-left: 5px;">3秒間守るシールド展開 (CD:2秒)</div>
+            <div class="control-row" style="margin-top:10px;"><span class="key">E</span> ブリンク (120秒後)</div>
+            <div style="font-size:14px; margin-left: 5px;">残像を残して瞬間移動＆無敵 (CD:3秒)</div>
+        </div>
+
+        <!-- アイテム説明 -->
+        <div class="info-box">
+            <div class="box-title">アイテム</div>
+            <div class="control-row"><span class="item-icon icon-speed">👟</span> 靴：スピードUP (永続)</div>
+            <div class="control-row"><span class="item-icon icon-shield">🛡️</span> 盾：ボールを1回防ぐ</div>
         </div>
     </div>
 
@@ -174,11 +182,13 @@
     <h1 id="result-title">ゲームオーバー</h1>
     <div id="final-score">記録: 0.00秒</div>
     
+    <!-- ランキング登録フォーム -->
     <div id="score-input-container">
         <input type="text" id="player-name-input" placeholder="名前を入力(10文字)" maxlength="10">
         <button id="submit-score-btn" class="kawaii-btn" style="min-width: 120px; padding: 10px;">登録</button>
     </div>
 
+    <!-- ランキング表示エリア -->
     <div class="box-title" style="color:#fff; text-shadow:2px 2px 0 #ff6699;">TOP 30 RANKING</div>
     <div id="ranking-section">
         <div style="text-align:center;">読み込み中...</div>
@@ -198,6 +208,7 @@
         <div class="skill-container">
             <div id="skill-q" class="skill-box">Q: 60秒後...</div>
             <div id="skill-w" class="skill-box">W: 100秒後...</div>
+            <div id="skill-e" class="skill-box">E: 120秒後...</div>
         </div>
 
         <div class="status-line">
@@ -207,12 +218,12 @@
     </div>
 </div>
 
+<!-- Firebase SDK -->
 <script type="module">
     import * as THREE from 'three';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // ★Firebase設定 (埋め込み済み)
     const firebaseConfig = {
       apiKey: "AIzaSyC9qf1OCM5v8zCMSJIpvqdGoqrCewTyQbQ",
       authDomain: "dodge-ranking.firebaseapp.com",
@@ -222,7 +233,6 @@
       appId: "1:541558141177:web:d633cc34b63df22f18b228"
     };
 
-    // Firebase初期化
     let db;
     try {
         const app = initializeApp(firebaseConfig);
@@ -287,19 +297,27 @@
         mapLimit: 250, mapVisualSize: 600,
         basePlayerSpeed: 24, cameraHeight: 50, cameraOffsetZ: 40, 
         ballRadius: 1.5, baseBallSpeedMin: 15, baseBallSpeedMax: 24, spawnDistance: 350,
-        speedItemInterval: 3.0, speedBoostAmount: 3.0, heartItemInterval: 15.0,
-        skillUnlockTimeQ: 60.0, skillUnlockTimeW: 100.0, qCooldown: 1.0, wCooldown: 2.0, wDuration: 3.0
+        speedItemInterval: 3.0, speedBoostAmount: 3.0, shieldItemInterval: 15.0,
+        skillUnlockTimeQ: 60.0, skillUnlockTimeW: 100.0, skillUnlockTimeE: 120.0,
+        qCooldown: 1.0, wCooldown: 2.0, eCooldown: 3.0,
+        wDuration: 3.0, eDuration: 0.15, // ブリンクなので短く
+        dashSpeedMultiplier: 8.0 // 速度倍率アップ
     };
 
     let scene, camera, renderer, clock, raycaster, mouse;
     let player, mapGroup, moveIndicator;
-    let skills = [], items = [], lightnings = []; // ★修正済み: 変数宣言エラー回避
+    let skills = [], items = [], lightnings = [], afterimages = []; // 残像用配列追加
     let gameActive = false;
     let survivalTime = 0;
-    let spawnCooldown = 0, speedItemCooldown = 0, heartItemCooldown = 0;
+    let spawnCooldown = 0, speedItemCooldown = 0, shieldItemCooldown = 0;
     let currentPlayerSpeed = CONFIG.basePlayerSpeed;
+    
     let itemShieldActive = false, wSkillShieldActive = false, wSkillTimer = 0;
-    let qUnlocked = false, wUnlocked = false, qCoolTimer = 0, wCoolTimer = 0;
+    let isDashing = false, dashTimer = 0;
+    
+    let qUnlocked = false, wUnlocked = false, eUnlocked = false;
+    let qCoolTimer = 0, wCoolTimer = 0, eCoolTimer = 0;
+    
     let targetPos = new THREE.Vector3();
 
     function disposeObject(obj) {
@@ -327,27 +345,18 @@
         Assets.materials.ball = new THREE.MeshStandardMaterial({ map: tex, emissive: 0xff55a3, emissiveIntensity: 0.3, roughness: 0.4 });
         Assets.materials.blackBall = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x000000, roughness: 0.1, metalness: 0.9 });
 
-        const starShape = new THREE.Shape();
-        const pts=5, outer=0.5, inner=0.2;
-        for(let i=0; i<pts*2; i++){
-            const l = i%2==0 ? outer : inner; const a = i / pts * Math.PI - Math.PI/2;
-            const x = Math.cos(a)*l; const y = Math.sin(a)*l;
-            if(i==0) starShape.moveTo(x,y); else starShape.lineTo(x,y);
-        }
-        starShape.closePath();
-        Assets.geometries.star = new THREE.ExtrudeGeometry(starShape, { depth: 0.1, bevelEnabled: true, bevelThickness:0.02, bevelSize:0.02 });
-        Assets.materials.star = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xffea00, emissiveIntensity: 0.8, roughness: 0.2, metalness: 0.8 });
+        const shoeShape = new THREE.Shape();
+        shoeShape.moveTo(0, 0); shoeShape.lineTo(1.2, 0); shoeShape.lineTo(1.2, 0.4); shoeShape.lineTo(0.8, 0.6); shoeShape.lineTo(0.5, 0.6); shoeShape.quadraticCurveTo(0.2, 0.5, 0, 0.2); shoeShape.lineTo(0, 0);
+        Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.4, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
+        Assets.geometries.shoe.center();
+        Assets.materials.shoe = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x0088ff, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.5 });
 
-        const hx=0, hy=0; const heartShape = new THREE.Shape();
-        heartShape.moveTo( hx, hy - 0.4 ); 
-        heartShape.bezierCurveTo( hx, hy - 0.1, hx - 0.5, hy + 0.2, hx - 0.5, hy + 0.5 );
-        heartShape.bezierCurveTo( hx - 0.5, hy + 0.7, hx - 0.3, hy + 0.9, hx, hy + 0.6 );
-        heartShape.bezierCurveTo( hx + 0.3, hy + 0.9, hx + 0.5, hy + 0.7, hx + 0.5, hy + 0.5 );
-        heartShape.bezierCurveTo( hx + 0.5, hy + 0.2, hx, hy - 0.1, hx, hy - 0.4 );
-        Assets.geometries.heart = new THREE.ExtrudeGeometry( heartShape, { depth: 0.1, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.02, bevelThickness: 0.02 } );
-        Assets.geometries.heart.center();
-        Assets.geometries.heart.rotateX(Math.PI); Assets.geometries.heart.rotateX(-Math.PI / 2);
-        Assets.materials.heart = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 0.6, roughness: 0.2, metalness: 0.5 });
+        const shieldShape = new THREE.Shape();
+        shieldShape.moveTo(-0.5, 0.6); shieldShape.lineTo(0.5, 0.6); shieldShape.lineTo(0.5, 0.2);
+        shieldShape.quadraticCurveTo(0.5, -0.6, 0, -0.8); shieldShape.quadraticCurveTo(-0.5, -0.6, -0.5, 0.2); shieldShape.lineTo(-0.5, 0.6);
+        Assets.geometries.shieldItem = new THREE.ExtrudeGeometry(shieldShape, { depth: 0.2, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
+        Assets.geometries.shieldItem.center();
+        Assets.materials.shieldItem = new THREE.MeshStandardMaterial({ color: 0x00ff88, emissive: 0x00cc66, emissiveIntensity: 0.8, roughness: 0.3, metalness: 0.7 });
 
         Assets.geometries.lightning = new THREE.IcosahedronGeometry(1, 0); 
         Assets.materials.lightning = new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 2.0, roughness: 0.1, metalness: 0.5, wireframe: false });
@@ -387,11 +396,12 @@
     class SpeedItem extends GameItem {
         constructor() {
             super(); this.type = 'speed';
-            const starMesh = new THREE.Mesh(Assets.geometries.star, Assets.materials.star);
-            starMesh.scale.set(1.5, 1.5, 1.5);
-            this.rotateGroup = new THREE.Group(); this.rotateGroup.add(starMesh);
+            const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
+            shoeMesh.scale.set(1.5, 1.5, 1.5);
+            shoeMesh.rotation.x = Math.PI; shoeMesh.rotation.z = Math.PI;
+            this.rotateGroup = new THREE.Group(); this.rotateGroup.add(shoeMesh);
             this.mesh.add(this.rotateGroup);
-            const light = new THREE.PointLight(0xffd700, 1.5, 8); this.mesh.add(light);
+            const light = new THREE.PointLight(0x00ccff, 1.5, 8); this.mesh.add(light);
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 2.0;
@@ -399,14 +409,14 @@
         }
     }
 
-    class HeartItem extends GameItem {
+    class ShieldItem extends GameItem {
         constructor() {
-            super(); this.type = 'heart';
-            const heartMesh = new THREE.Mesh(Assets.geometries.heart, Assets.materials.heart);
-            heartMesh.scale.set(1.5, 1.5, 1.5);
-            this.rotateGroup = new THREE.Group(); this.rotateGroup.add(heartMesh);
+            super(); this.type = 'shield';
+            const shieldMesh = new THREE.Mesh(Assets.geometries.shieldItem, Assets.materials.shieldItem);
+            shieldMesh.scale.set(1.5, 1.5, 1.5);
+            this.rotateGroup = new THREE.Group(); this.rotateGroup.add(shieldMesh);
             this.mesh.add(this.rotateGroup);
-            const light = new THREE.PointLight(0xff0000, 1.5, 8); this.mesh.add(light);
+            const light = new THREE.PointLight(0x00ff88, 1.5, 8); this.mesh.add(light);
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 1.5;
@@ -428,6 +438,49 @@
             this.mesh.rotation.x += dt * 10; this.mesh.rotation.y += dt * 10;
             this.life -= dt;
             return this.life > 0;
+        }
+    }
+
+    // 残像クラス
+    class Afterimage {
+        constructor(originalMesh) {
+            this.mesh = originalMesh.clone();
+            this.life = 0.3; // 残像の寿命
+            this.maxLife = 0.3;
+            
+            // マテリアルを透明な単色に変更
+            const mat = new THREE.MeshBasicMaterial({
+                color: 0x00ffff, transparent: true, opacity: 0.3
+            });
+            
+            this.mesh.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = mat;
+                    child.castShadow = false;
+                    child.receiveShadow = false;
+                }
+            });
+            
+            scene.add(this.mesh);
+        }
+        
+        update(dt) {
+            this.life -= dt;
+            const alpha = this.life / this.maxLife;
+            this.mesh.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.opacity = 0.3 * alpha;
+                }
+            });
+            
+            if (this.life <= 0) {
+                scene.remove(this.mesh);
+                this.mesh.traverse((child) => {
+                    if (child.isMesh) child.material.dispose();
+                });
+                return false;
+            }
+            return true;
         }
     }
 
@@ -455,14 +508,18 @@
             this.mesh.add(this.wShield);
         }
         setColor(hasItemShield) {
-            if (hasItemShield) { this.mat.color.setHex(0xff0000); this.mat.emissive.setHex(0x550000); } 
+            if (hasItemShield) { this.mat.color.setHex(0x00ff88); this.mat.emissive.setHex(0x005522); } 
             else { this.mat.color.setHex(0xffffff); this.mat.emissive.setHex(0x000000); }
         }
         setWShieldVisible(visible) { this.wShield.visible = visible; }
         update(dt) {
             if (!gameActive) this.isMoving = false;
-            const speedScale = currentPlayerSpeed / CONFIG.basePlayerSpeed;
+            let currentSpeed = currentPlayerSpeed;
+            if (isDashing) currentSpeed *= CONFIG.dashSpeedMultiplier;
+
+            const speedScale = currentSpeed / CONFIG.basePlayerSpeed;
             this.animTime += dt * (this.isMoving ? 18 * speedScale : 0);
+            
             if (this.isMoving) {
                 const currentRot = this.mesh.quaternion.clone();
                 const dir = new THREE.Vector3().subVectors(targetPos, this.mesh.position).normalize();
@@ -470,8 +527,21 @@
                     const targetAngle = Math.atan2(dir.x, dir.z);
                     const targetRot = new THREE.Quaternion();
                     targetRot.setFromAxisAngle(new THREE.Vector3(0,1,0), targetAngle);
-                    this.mesh.quaternion.slerp(targetRot, 10.0 * dt);
+                    // ブリンク中は回転も瞬時
+                    const slerpFactor = isDashing ? 50.0 : 15.0;
+                    this.mesh.quaternion.slerp(targetRot, slerpFactor * dt);
                 }
+            }
+
+            if (isDashing) {
+                // ブリンクポーズ（固定）
+                this.mesh.children[1].rotation.x = 0.5; // 前傾
+                this.armL.rotation.x = 1.0; 
+                this.armR.rotation.x = 1.0;
+                this.legL.rotation.x = 0.5; 
+                this.legR.rotation.x = -0.5;
+                this.mesh.position.y = 0.5;
+            } else if (this.isMoving) {
                 const as = 1.0; const ls = 1.2;
                 this.armL.rotation.x = Math.sin(this.animTime) * as; this.armR.rotation.x = Math.sin(this.animTime + Math.PI) * as;
                 this.legL.rotation.x = Math.sin(this.animTime + Math.PI) * ls; this.legR.rotation.x = Math.sin(this.animTime) * ls;
@@ -647,20 +717,24 @@
 
     function resetGameState() {
         survivalTime = 0; spawnCooldown = 0;
-        speedItemCooldown = CONFIG.speedItemInterval; heartItemCooldown = CONFIG.heartItemInterval;
+        speedItemCooldown = CONFIG.speedItemInterval; shieldItemCooldown = CONFIG.shieldItemInterval; 
         skills.forEach(s => disposeObject(s.mesh)); skills = [];
         items.forEach(i => i.remove()); items = [];
-        lightnings.forEach(l => disposeObject(l.mesh)); lightnings = []; 
+        lightnings.forEach(l => disposeObject(l.mesh)); lightnings = [];
+        afterimages.forEach(a => disposeObject(a.mesh)); afterimages = [];
+        
         player.mesh.position.set(0, 0, 0); targetPos.set(0, 0, 0);
         player.isMoving = false; moveIndicator.material.opacity = 0;
         player.mesh.rotation.set(0,0,0);
         currentPlayerSpeed = CONFIG.basePlayerSpeed;
         
         itemShieldActive = false; wSkillShieldActive = false; wSkillTimer = 0;
+        isDashing = false; dashTimer = 0;
         player.setColor(false); player.setWShieldVisible(false);
         updateSpeedUI(); updateShieldUI();
 
-        qUnlocked = false; wUnlocked = false; qCoolTimer = 0; wCoolTimer = 0;
+        qUnlocked = false; wUnlocked = false; eUnlocked = false;
+        qCoolTimer = 0; wCoolTimer = 0; eCoolTimer = 0;
         updateSkillUI();
     }
 
@@ -675,19 +749,25 @@
     }
     function updateShieldUI() {
         const el = document.getElementById('shield-display');
-        if (itemShieldActive) { el.style.display = 'block'; el.innerText = "♥ バリア発動中 ♥"; } else { el.style.display = 'none'; }
+        if (itemShieldActive) { el.style.display = 'block'; el.innerText = "🛡️ ガード中 🛡️"; } else { el.style.display = 'none'; }
     }
     function updateSkillUI() {
         const qEl = document.getElementById('skill-q');
-        if (!qUnlocked) { qEl.className = 'skill-box cooldown'; qEl.innerText = `Q: ${(Math.max(0, CONFIG.skillUnlockTimeQ - survivalTime)).toFixed(0)}秒後`; }
+        if (!qUnlocked) { qEl.className = 'skill-box cooldown'; qEl.innerText = `Q: ${(Math.max(0, CONFIG.skillUnlockTimeQ - survivalTime)).toFixed(0)}秒後解禁`; }
         else if (qCoolTimer > 0) { qEl.className = 'skill-box cooldown'; qEl.innerText = `Q: ${qCoolTimer.toFixed(1)}`; }
         else { qEl.className = 'skill-box ready'; qEl.innerText = "Q: READY"; }
 
         const wEl = document.getElementById('skill-w');
-        if (!wUnlocked) { wEl.className = 'skill-box cooldown'; wEl.innerText = `W: ${(Math.max(0, CONFIG.skillUnlockTimeW - survivalTime)).toFixed(0)}秒後`; }
+        if (!wUnlocked) { wEl.className = 'skill-box cooldown'; wEl.innerText = `W: ${(Math.max(0, CONFIG.skillUnlockTimeW - survivalTime)).toFixed(0)}秒後解禁`; }
         else if (wSkillShieldActive) { wEl.className = 'skill-box active'; wEl.innerText = `W: ACTIVE`; }
         else if (wCoolTimer > 0) { wEl.className = 'skill-box cooldown'; wEl.innerText = `W: ${wCoolTimer.toFixed(1)}`; }
         else { wEl.className = 'skill-box ready'; wEl.innerText = "W: READY"; }
+
+        const eEl = document.getElementById('skill-e');
+        if (!eUnlocked) { eEl.className = 'skill-box cooldown'; eEl.innerText = `E: ${(Math.max(0, CONFIG.skillUnlockTimeE - survivalTime)).toFixed(0)}秒後解禁`; }
+        else if (isDashing) { eEl.className = 'skill-box active'; eEl.innerText = `E: DASHING`; }
+        else if (eCoolTimer > 0) { eEl.className = 'skill-box cooldown'; eEl.innerText = `E: ${eCoolTimer.toFixed(1)}`; }
+        else { eEl.className = 'skill-box ninja-ready'; eEl.innerText = "E: READY"; }
     }
 
     function updateCamera() {
@@ -702,13 +782,18 @@
     function onKeyDown(e) {
         if (!gameActive) return;
         if (e.key === 's' || e.key === 'S') {
-            targetPos.copy(player.mesh.position); player.isMoving = false; moveIndicator.material.opacity = 0;
+            if (!isDashing) {
+                targetPos.copy(player.mesh.position); player.isMoving = false; moveIndicator.material.opacity = 0;
+            }
         }
         if ((e.key === 'q' || e.key === 'Q') && qUnlocked && qCoolTimer <= 0) {
             fireLightning(); qCoolTimer = CONFIG.qCooldown;
         }
         if ((e.key === 'w' || e.key === 'W') && wUnlocked && wCoolTimer <= 0 && !wSkillShieldActive) {
             activateWSkill();
+        }
+        if ((e.key === 'e' || e.key === 'E') && eUnlocked && eCoolTimer <= 0 && !isDashing) {
+            activateESkill();
         }
     }
 
@@ -726,8 +811,26 @@
         player.setWShieldVisible(true); soundManager.play('shield');
     }
 
+    function activateESkill() {
+        isDashing = true; dashTimer = CONFIG.eDuration;
+        eCoolTimer = CONFIG.eCooldown;
+        let dashDir = new THREE.Vector3();
+        if (player.isMoving) {
+             dashDir.subVectors(targetPos, player.mesh.position).normalize();
+        } else {
+             const v = new THREE.Vector3(0,0,1); v.applyQuaternion(player.mesh.quaternion); dashDir.copy(v);
+        }
+        const dashDist = CONFIG.basePlayerSpeed * CONFIG.dashSpeedMultiplier * CONFIG.eDuration;
+        targetPos.copy(player.mesh.position).add(dashDir.multiplyScalar(dashDist));
+        targetPos.x = Math.max(-CONFIG.mapLimit, Math.min(CONFIG.mapLimit, targetPos.x));
+        targetPos.z = Math.max(-CONFIG.mapLimit, Math.min(CONFIG.mapLimit, targetPos.z));
+        player.isMoving = true; 
+        soundManager.play('shield'); 
+    }
+
     function onRightClick(e) {
         e.preventDefault(); if (!gameActive) return;
+        if (isDashing) return;
         mouse.x = (e.clientX / window.innerWidth) * 2 - 1; mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
         raycaster.setFromCamera(mouse, camera);
         const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); const intersect = new THREE.Vector3();
@@ -755,8 +858,8 @@
         }
         speedItemCooldown -= dt;
         if (speedItemCooldown <= 0) { items.push(new SpeedItem()); speedItemCooldown = CONFIG.speedItemInterval; }
-        heartItemCooldown -= dt;
-        if (heartItemCooldown <= 0) { items.push(new HeartItem()); heartItemCooldown = CONFIG.heartItemInterval; }
+        shieldItemCooldown -= dt; 
+        if (shieldItemCooldown <= 0) { items.push(new ShieldItem()); shieldItemCooldown = CONFIG.shieldItemInterval; }
     }
 
     const _pPos = new THREE.Vector3();
@@ -771,23 +874,38 @@
             survivalTime += delta; manageSpawns(delta);
             if (!qUnlocked && survivalTime >= CONFIG.skillUnlockTimeQ) { qUnlocked = true; soundManager.play('shield'); }
             if (!wUnlocked && survivalTime >= CONFIG.skillUnlockTimeW) { wUnlocked = true; soundManager.play('shield'); }
+            if (!eUnlocked && survivalTime >= CONFIG.skillUnlockTimeE) { eUnlocked = true; soundManager.play('shield'); }
             if (qCoolTimer > 0) qCoolTimer -= delta; if (wCoolTimer > 0) wCoolTimer -= delta;
             if (wSkillShieldActive) {
                 wSkillTimer -= delta;
                 if (wSkillTimer <= 0) { wSkillShieldActive = false; player.setWShieldVisible(false); wCoolTimer = CONFIG.wCooldown; }
             }
+            if (isDashing) {
+                dashTimer -= delta;
+                // 残像生成 (頻度調整)
+                if (Math.random() < 0.8) afterimages.push(new Afterimage(player.mesh));
+                if (dashTimer <= 0) { isDashing = false; eCoolTimer = CONFIG.eCooldown; }
+            }
+            if (eCoolTimer > 0) eCoolTimer -= delta;
+
             updateSkillUI();
 
             const dist = player.mesh.position.distanceTo(targetPos);
             if (dist > 0.5) {
                 player.isMoving = true;
                 _dir.subVectors(targetPos, player.mesh.position).normalize();
-                const moveDist = currentPlayerSpeed * delta;
+                let speed = currentPlayerSpeed;
+                if (isDashing) speed *= CONFIG.dashSpeedMultiplier;
+                const moveDist = speed * delta;
                 if (moveDist >= dist) player.mesh.position.copy(targetPos);
                 else player.mesh.position.add(_dir.multiplyScalar(moveDist));
-            } else { player.isMoving = false; }
+            } else { 
+                player.isMoving = false; 
+                if (isDashing) { isDashing = false; eCoolTimer = CONFIG.eCooldown; }
+            }
             if (moveIndicator.material.opacity > 0) { moveIndicator.material.opacity -= delta * 3; moveIndicator.scale.multiplyScalar(0.9); }
 
+            // 電撃処理
             for (let i = lightnings.length - 1; i >= 0; i--) {
                 const bolt = lightnings[i]; const alive = bolt.update(delta);
                 if (!alive) { disposeObject(bolt.mesh); lightnings.splice(i, 1); continue; }
@@ -800,11 +918,19 @@
                 }
             }
 
+            // 残像処理
+            for (let i = afterimages.length - 1; i >= 0; i--) {
+                const af = afterimages[i];
+                if (!af.update(delta)) afterimages.splice(i, 1);
+            }
+
             for (let i = skills.length - 1; i >= 0; i--) {
                 const s = skills[i]; const alive = s.update(delta);
                 _pPos.copy(player.mesh.position); _pPos.y = s.mesh.position.y; 
                 if (s.checkHit(_pPos)) {
-                    if (wSkillShieldActive) {
+                    if (isDashing) {
+                        // 無傷
+                    } else if (wSkillShieldActive) {
                         disposeObject(s.mesh); skills.splice(i, 1); soundManager.play('break');
                     } else if (itemShieldActive) {
                         itemShieldActive = false; player.setColor(false); updateShieldUI();
@@ -821,7 +947,7 @@
                     if (item.type === 'speed') {
                         currentPlayerSpeed += CONFIG.speedBoostAmount; updateSpeedUI();
                         item.remove(); items.splice(i, 1); soundManager.play('item');
-                    } else if (item.type === 'heart') {
+                    } else if (item.type === 'shield') {
                         if (!itemShieldActive) { 
                             itemShieldActive = true; player.setColor(true); updateShieldUI();
                             item.remove(); items.splice(i, 1); soundManager.play('shield');
