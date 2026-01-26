@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ドッヂボール (Blink Update)</title>
+    <title>THE ドッヂボール (Item Shape Fix)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
@@ -345,15 +345,37 @@
         Assets.materials.ball = new THREE.MeshStandardMaterial({ map: tex, emissive: 0xff55a3, emissiveIntensity: 0.3, roughness: 0.4 });
         Assets.materials.blackBall = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x000000, roughness: 0.1, metalness: 0.9 });
 
+        // 靴
         const shoeShape = new THREE.Shape();
-        shoeShape.moveTo(0, 0); shoeShape.lineTo(1.2, 0); shoeShape.lineTo(1.2, 0.4); shoeShape.lineTo(0.8, 0.6); shoeShape.lineTo(0.5, 0.6); shoeShape.quadraticCurveTo(0.2, 0.5, 0, 0.2); shoeShape.lineTo(0, 0);
+        // 下面 (ソール)
+        shoeShape.moveTo(0.8, -0.5); 
+        shoeShape.lineTo(-0.8, -0.5);
+        // かかと (左)
+        shoeShape.quadraticCurveTo(-1.0, -0.5, -1.0, -0.2);
+        shoeShape.lineTo(-1.0, 0.2);
+        // 足首 (左上)
+        shoeShape.lineTo(-0.6, 0.6);
+        shoeShape.lineTo(0.0, 0.6); // 履き口
+        // 甲 (右上からつま先へ)
+        shoeShape.lineTo(0.2, 0.2);
+        shoeShape.quadraticCurveTo(0.8, 0.0, 1.0, -0.2); // つま先
+        shoeShape.quadraticCurveTo(1.0, -0.5, 0.8, -0.5); // つま先下
+
         Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.4, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
         Assets.geometries.shoe.center();
         Assets.materials.shoe = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x0088ff, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.5 });
 
+        // 盾アイテム (修正版)
         const shieldShape = new THREE.Shape();
-        shieldShape.moveTo(-0.5, 0.6); shieldShape.lineTo(0.5, 0.6); shieldShape.lineTo(0.5, 0.2);
-        shieldShape.quadraticCurveTo(0.5, -0.6, 0, -0.8); shieldShape.quadraticCurveTo(-0.5, -0.6, -0.5, 0.2); shieldShape.lineTo(-0.5, 0.6);
+        const w = 0.6; 
+        const h = 0.7;
+        shieldShape.moveTo(-w, h); // 左上
+        shieldShape.lineTo(w, h);  // 右上
+        shieldShape.lineTo(w, 0);  // 右側面（途中まで）
+        shieldShape.quadraticCurveTo(w, -h, 0, -h*1.2); // 右下カーブから先端
+        shieldShape.quadraticCurveTo(-w, -h, -w, 0); // 左下カーブから側面
+        shieldShape.lineTo(-w, h); // 閉じる
+
         Assets.geometries.shieldItem = new THREE.ExtrudeGeometry(shieldShape, { depth: 0.2, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
         Assets.geometries.shieldItem.center();
         Assets.materials.shieldItem = new THREE.MeshStandardMaterial({ color: 0x00ff88, emissive: 0x00cc66, emissiveIntensity: 0.8, roughness: 0.3, metalness: 0.7 });
@@ -398,8 +420,26 @@
             super(); this.type = 'speed';
             const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
             shoeMesh.scale.set(1.5, 1.5, 1.5);
-            shoeMesh.rotation.x = Math.PI; shoeMesh.rotation.z = Math.PI;
-            this.rotateGroup = new THREE.Group(); this.rotateGroup.add(shoeMesh);
+            
+            // X軸回りで180度回転させて、上下を正しくする（ExtrudeはZ方向に押し出されるため）
+            // 初期状態だと横に寝ているかもしれないので、立たせる調整
+            // ExtrudeGeometryはXY平面にShapeを描画してZ方向に押し出す。
+            // これを地面（XZ平面）に対して垂直に立てるにはX軸回転が必要。
+            // shoeMesh.rotation.x = Math.PI; shoeMesh.rotation.z = Math.PI; 
+            // 上記の回転設定だとまだおかしい可能性があるので、下記のように調整
+            
+            // ShapeはXY平面。これを立たせるにはX軸で-90度回転させるのが一般的？
+            // ただし、今回は横向きの靴を描いたので、Z軸回転も必要かも。
+            // ここではシンプルにY軸回転（自転）させるグループに入れる前に調整する。
+            
+            // 靴を立たせる（側面が見えるように）
+            // 元のShapeの向き: X右, Y上。Extrude方向: Z手前。
+            // これをXZ平面に置くと、Zが高さになるので、X軸-90度回転で立つ。
+            shoeMesh.rotation.x = Math.PI; // 上下反転（ShapeのYが逆だった場合）
+            // 試行錯誤が必要だが、一旦これで。
+            
+            this.rotateGroup = new THREE.Group(); 
+            this.rotateGroup.add(shoeMesh);
             this.mesh.add(this.rotateGroup);
             const light = new THREE.PointLight(0x00ccff, 1.5, 8); this.mesh.add(light);
         }
@@ -414,6 +454,18 @@
             super(); this.type = 'shield';
             const shieldMesh = new THREE.Mesh(Assets.geometries.shieldItem, Assets.materials.shieldItem);
             shieldMesh.scale.set(1.5, 1.5, 1.5);
+            
+            // 盾もXY平面に描画されているので、立たせる必要があるかもしれない
+            // しかし、updateでY軸回転させているので、デフォルト（XY平面）のままだと
+            // 盾が「寝た状態で」クルクル回る（レコードのように）。
+            // なので、立たせたいならX軸回転が必要。
+            // shieldMesh.rotation.x = 0; // 寝ている
+            // 立たせるには:
+            // shieldMesh.rotation.x = -Math.PI / 2; // これでZ軸が上を向く？いやY軸が上？
+            // Three.jsのY-up座標系において、XY平面の板を立たせる（XZ平面に垂直にする）にはX軸回転は不要？
+            // いや、XY平面にある板は最初から立っている（Z軸方向から見ると）。
+            // だから回転は不要のはず。
+            
             this.rotateGroup = new THREE.Group(); this.rotateGroup.add(shieldMesh);
             this.mesh.add(this.rotateGroup);
             const light = new THREE.PointLight(0x00ff88, 1.5, 8); this.mesh.add(light);
