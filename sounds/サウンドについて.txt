@@ -1,0 +1,11 @@
+bgm.mp3 ... ゲーム中のBGM（サモナーズリフトのテーマなど）
+
+start.mp3 ... 開始音（「Welcome to Summoner's Rift」など）
+
+item.mp3 ... アイテム取得音（ゴールド獲得音やポーション音など）
+
+shield.mp3 ... シールド獲得音（バリア音など）
+
+break.mp3 ... シールドが割れた時の音
+
+defeat.mp3 ... ゲームオーバー音（「DEFEAT」など）
