@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ボールを避けるだけのゲーム (Ranking Enabled)</title>
+    <title>THE ドッヂボール</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
@@ -140,7 +140,7 @@
 </div>
 
 <div id="start-screen" class="overlay-screen">
-    <h1>ボールを避けるだけのゲーム</h1>
+    <h1>THE ドッヂボール</h1>
     
     <div class="info-wrapper">
         <div class="info-box">
@@ -212,7 +212,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // ★★★ お客様のFirebase設定 ★★★
+    // ★Firebase設定 (埋め込み済み)
     const firebaseConfig = {
       apiKey: "AIzaSyC9qf1OCM5v8zCMSJIpvqdGoqrCewTyQbQ",
       authDomain: "dodge-ranking.firebaseapp.com",
@@ -235,7 +235,6 @@
     }
     window.onerror = function(msg, url, line) { showError(`${msg}\nLine: ${line}`); return false; };
 
-    // ... (SoundManagerなどは前回と同じ) ...
     class SoundManager {
         constructor() {
             this.sounds = {}; this.currentBgmKey = null;
@@ -294,7 +293,7 @@
 
     let scene, camera, renderer, clock, raycaster, mouse;
     let player, mapGroup, moveIndicator;
-    let skills = []; items = []; lightnings = [];
+    let skills = [], items = [], lightnings = []; // ★修正済み: 変数宣言エラー回避
     let gameActive = false;
     let survivalTime = 0;
     let spawnCooldown = 0, speedItemCooldown = 0, heartItemCooldown = 0;
