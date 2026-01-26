@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ドッヂボール (Boot Orientation Fix)</title>
+    <title>THE ドッヂボール (Boot Shape Fix)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
@@ -347,13 +347,13 @@
         // ★修正: ブーツらしい形に修正
         const shoeShape = new THREE.Shape();
         // かかとからスタート
-        shoeShape.moveTo(-0.5, 0); 
-        shoeShape.lineTo(0.5, 0); // ソール
-        shoeShape.quadraticCurveTo(0.8, 0, 0.8, 0.3); // つま先上がり
-        shoeShape.lineTo(0.5, 0.5); // 甲
-        shoeShape.lineTo(0, 0.8); // 足首前
-        shoeShape.lineTo(-0.5, 0.8); // 足首上
-        shoeShape.lineTo(-0.5, 0); // かかと後ろ
+        shoeShape.moveTo(-0.6, 0.8); // Top back
+        shoeShape.lineTo(-0.6, 0.0); // Heel bottom
+        shoeShape.lineTo(0.6, 0.0);  // Toe bottom
+        shoeShape.quadraticCurveTo(0.9, 0.0, 0.9, 0.3); // Toe tip round
+        shoeShape.lineTo(0.5, 0.6);  // Lace area bottom
+        shoeShape.lineTo(0.2, 1.0);  // Tongue top
+        shoeShape.lineTo(-0.6, 0.8); // Back to start (Top)
         
         Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.4, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
         Assets.geometries.shoe.center();
@@ -410,8 +410,7 @@
             const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
             shoeMesh.scale.set(1.5, 1.5, 1.5);
             // ★修正: 向きを正立させる
-            shoeMesh.rotation.x = Math.PI; 
-            shoeMesh.rotation.z = 0; 
+            shoeMesh.rotation.x = 0; 
             
             this.rotateGroup = new THREE.Group(); 
             this.rotateGroup.add(shoeMesh);
