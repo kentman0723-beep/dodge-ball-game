@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ドッヂボール (Lightweight & Boot Fix)</title>
+    <title>THE ドッヂボール (Boot Orientation Fix)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
@@ -409,34 +409,14 @@
             super(); this.type = 'speed';
             const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
             shoeMesh.scale.set(1.5, 1.5, 1.5);
-            // ★修正: 向きを正立させる (ShapeはXY平面、ExtrudeはZ方向)
-            // デフォルトで横倒しになるのを防ぐため、回転はなし（Y軸自転のみ）
-            // Shapeの向きによっては回転が必要だが、今回はY-Upで描いたのでOK？
-            // 念のため確認：ExtrudeはZ+方向に伸びる。ShapeはXY平面。
-            // これを地面（XZ平面）に対して立てたいなら、X軸周りに回転が必要なはず。
-            // Shapeが「横から見た図」なら、今は寝ている状態。
-            // 立たせるには...
-            // shoeMesh.rotation.x = -Math.PI / 2; // これで起き上がるはずだが、前回逆だったとのこと。
-            // 逆にしてみる
-            shoeMesh.rotation.x = Math.PI; 
-            // もしくは
-            // shoeMesh.rotation.y = Math.PI / 2; 
-
-            // 試行: Shapeの定義を「横から見た図」としたので、
-            // これを立たせるにはY軸中心に回す（updateでやってる）だけではダメで、
-            // そもそも「靴底が下」になるようにジオメトリを回転させておく必要がある。
-            // Assets初期化時にジオメトリ自体を回転させるのがベストだが、ここではメッシュ回転で対応。
-            
-            // 前回「上下逆」と言われたので、X軸回転を調整。
+            // ★修正: 向きを正立させる
             shoeMesh.rotation.x = Math.PI; 
             shoeMesh.rotation.z = 0; 
             
             this.rotateGroup = new THREE.Group(); 
             this.rotateGroup.add(shoeMesh);
             this.mesh.add(this.rotateGroup);
-            const light = new THREE.PointLight(0x00ccff, 1.5, 8); // ライト削除して軽量化するならここを削除
-            // 軽量化要望があったので削除
-            // this.mesh.add(light); 
+            // const light = new THREE.PointLight(0x00ccff, 1.5, 8); // 軽量化のためライト削除
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 2.0;
@@ -452,8 +432,7 @@
             shieldMesh.scale.set(1.5, 1.5, 1.5);
             this.rotateGroup = new THREE.Group(); this.rotateGroup.add(shieldMesh);
             this.mesh.add(this.rotateGroup);
-            // 軽量化のためライト削除
-            // const light = new THREE.PointLight(0x00ff88, 1.5, 8); this.mesh.add(light);
+            // const light = new THREE.PointLight(0x00ff88, 1.5, 8); // 軽量化のためライト削除
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 1.5;
@@ -548,9 +527,7 @@
                     const targetAngle = Math.atan2(dir.x, dir.z);
                     const targetRot = new THREE.Quaternion();
                     targetRot.setFromAxisAngle(new THREE.Vector3(0,1,0), targetAngle);
-                    // ブリンク中は回転も瞬時
-                    const slerpFactor = isDashing ? 50.0 : 15.0;
-                    this.mesh.quaternion.slerp(targetRot, slerpFactor * dt);
+                    this.mesh.quaternion.slerp(targetRot, 10.0 * dt);
                 }
             }
 
