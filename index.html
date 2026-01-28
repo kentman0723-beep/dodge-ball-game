@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ドッヂボール</title>
+    <title>THE ドッヂボール (Boot Fixed)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
@@ -22,36 +22,49 @@
 
         #hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         
-        /* ★修正: HUDを小さく、透過度を上げる */
         #top-bar { 
-            position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center;
-            padding: 5px 20px; /* パディング縮小 */
-            background: rgba(255, 255, 255, 0.6); /* 透過度アップ 0.8 -> 0.6 */
-            border-radius: 20px; border: 2px solid #ffadd6; /* 枠線も少し細く */
-            box-shadow: 0 2px 10px rgba(255, 173, 214, 0.3);
-            width: 320px; /* 幅縮小 450px -> 320px */
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center;
+            padding: 10px 40px; 
+            background: rgba(255, 255, 255, 0.7); /* 少し不透明度を上げる */
+            border-radius: 25px; border: 3px solid #ffadd6;
+            box-shadow: 0 4px 15px rgba(255, 100, 150, 0.3);
+            width: 360px;
         }
-        /* 文字サイズ縮小 */
-        #timer-label { font-size: 12px; color: #ff88bb; font-weight: bold; letter-spacing: 2px; margin-bottom: -2px; }
-        #timer { font-size: 42px; font-weight: 900; color: #555; text-shadow: 2px 2px 0 #fff, 3px 3px 0 #ffadd6; line-height: 1; }
+        /* ★修正: 文字サイズを大きく、色を濃く、縁取りを強化 */
+        #timer-label { 
+            font-size: 20px; 
+            color: #ff5588; 
+            font-weight: 900; 
+            letter-spacing: 2px; 
+            margin-bottom: -5px; 
+            text-shadow: 2px 2px 0 #fff; /* 白縁取り */
+        }
+        #timer { 
+            font-size: 52px; 
+            font-weight: 900; 
+            color: #444; 
+            text-shadow: 3px 3px 0 #fff, 5px 5px 0 #ffadd6; 
+            line-height: 1.1; 
+        }
         
-        .status-line { display: flex; justify-content: center; gap: 10px; margin-top: 5px; }
+        .status-line { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
         .status-text { 
-            font-size: 12px; font-weight: bold; color: #fff; padding: 3px 10px; border-radius: 15px; 
-            text-shadow: 1px 1px 1px rgba(0,0,0,0.2); 
+            font-size: 14px; font-weight: bold; color: #fff; padding: 4px 12px; border-radius: 15px; 
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3); 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         #speed-display { background: #00ccff; }
         #shield-display { background: #00dd66; display: none; }
         
-        /* スキルインジケーターも縮小 */
-        .skill-container { display: flex; gap: 5px; margin-top: 5px; }
+        .skill-container { display: flex; gap: 8px; margin-top: 8px; }
         .skill-box {
-            background: #aaa; padding: 3px 10px; border-radius: 15px; color: #fff; font-weight: bold; font-size: 11px;
-            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 60px;
+            background: #aaa; padding: 4px 12px; border-radius: 15px; color: #fff; font-weight: bold; font-size: 12px;
+            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 65px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .skill-box.ready { background: #00ccff; box-shadow: 0 0 8px #00ccff; transform: scale(1.05); }
         .skill-box.active { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
-        .skill-box.cooldown { background: #555; color: #999; }
+        .skill-box.cooldown { background: #666; color: #bbb; }
         .skill-box.ninja-ready { background: #8800ff; box-shadow: 0 0 8px #8800ff; }
 
         .overlay-screen { 
@@ -421,13 +434,24 @@
             const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
             shoeMesh.scale.set(1.5, 1.5, 1.5);
             // ★修正: 向きを正立させる
-            shoeMesh.rotation.x = Math.PI; 
-            shoeMesh.rotation.z = 0; 
+            shoeMesh.rotation.x = 0; 
+            // 側面が見えるようにY軸回転させるために、グループ内でZ軸回転させて寝かす？
+            // ExtrudeはZ方向。X-90度回転で立つはずだが、座標系によって異なる。
+            // 試行: shapeをY-Upで描いたので、ExtrudeはZ方向に厚みがつく。
+            // つまり、このままだと「Z方向に伸びる靴」になる。
+            // これを「Y方向に伸びる靴」にするにはX-90度回転が必要。
+            // しかし前回逆さだったので、X+180度だったのかも。
+            // 今回は 0 で試す（デフォルト）。もし寝ていたら修正。
+            // (前回 Math.PI だったので、逆さま。0なら正しいはずだが、Shapeの向き次第)
+            
+            // Shape: Yが高さ。Extrude: Zが厚み。
+            // そのまま置くと、Z方向に厚みのある「板」がXY平面に立つ。
+            // つまり、靴の側面が正面（Z軸）から見える状態。
+            // これでOK。
             
             this.rotateGroup = new THREE.Group(); 
             this.rotateGroup.add(shoeMesh);
             this.mesh.add(this.rotateGroup);
-            // const light = new THREE.PointLight(0x00ccff, 1.5, 8); // 軽量化のためライト削除
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 2.0;
@@ -443,7 +467,6 @@
             shieldMesh.scale.set(1.5, 1.5, 1.5);
             this.rotateGroup = new THREE.Group(); this.rotateGroup.add(shieldMesh);
             this.mesh.add(this.rotateGroup);
-            // const light = new THREE.PointLight(0x00ff88, 1.5, 8); // 軽量化のためライト削除
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 1.5;
@@ -468,7 +491,7 @@
         }
     }
 
-    // 残像クラス (軽量化: 生成頻度低減)
+    // 残像クラス
     class Afterimage {
         constructor(originalMesh) {
             this.mesh = originalMesh.clone();
