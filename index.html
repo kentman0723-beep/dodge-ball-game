@@ -712,6 +712,82 @@
             font-size: 9px;
             margin-top: 1px;
         }
+
+        /* --- モバイススマホ横向き対応 --- */
+        @media (max-height: 500px) {
+            h1 {
+                font-size: 32px;
+                margin: 5px 0;
+            }
+
+            .info-container-row {
+                gap: 10px;
+                margin-bottom: 10px;
+                transform: scale(0.85);
+                transform-origin: center;
+            }
+
+            .info-box {
+                width: 280px;
+                padding: 8px 12px;
+            }
+
+            .box-title {
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+
+            .control-row {
+                font-size: 12px;
+                margin: 2px 0;
+            }
+
+            .key {
+                font-size: 11px;
+                padding: 1px 5px;
+            }
+
+            .btn-container {
+                gap: 10px;
+                margin-bottom: 5px;
+            }
+
+            button.kawaii-btn {
+                padding: 8px 20px;
+                font-size: 16px;
+                min-width: 140px;
+            }
+
+            button.kawaii-btn.secondary {
+                min-width: 100px;
+                font-size: 14px;
+                padding: 6px 15px;
+            }
+
+            .volume-container {
+                padding: 2px 10px;
+                margin-top: 2px;
+            }
+
+            #result-title {
+                font-size: 36px;
+                margin-bottom: 5px;
+            }
+
+            #final-score {
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+
+            #ranking-section {
+                max-height: 120px;
+                margin-bottom: 10px;
+            }
+
+            #score-input-container {
+                margin-bottom: 10px;
+            }
+        }
     </style>
     <script type="importmap">
         { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
