@@ -557,14 +557,6 @@
             #mobile-controls.game-active {
                 display: block;
             }
-
-            #top-bar {
-                transform: translateX(-50%) scale(0.4);
-                top: -5px;
-                background: rgba(255, 255, 255, 0.3);
-                border-color: rgba(255, 173, 214, 0.4);
-                box-shadow: none;
-            }
         }
 
         /* 仮想ジョイスティック */
@@ -718,77 +710,98 @@
 
         /* --- モバイススマホ横向き対応 --- */
         @media (max-height: 500px) {
-            h1 {
-                font-size: 32px;
-                margin: 5px 0;
+            #top-bar {
+                transform: translateX(-50%) scale(0.35);
+                /* 横向き時はかなり小さく */
+                top: -15px;
+                background: rgba(255, 255, 255, 0.2);
+                border-color: rgba(255, 173, 214, 0.3);
+                box-shadow: none;
             }
 
-            .info-container-row {
-                gap: 10px;
-                margin-bottom: 10px;
-                transform: scale(0.85);
+            .overlay-screen {
+                transform: scale(0.8);
+                /* 画面全体を縮小 */
                 transform-origin: center;
             }
 
-            .info-box {
-                width: 280px;
-                padding: 8px 12px;
-            }
-
-            .box-title {
-                font-size: 14px;
-                margin-bottom: 4px;
-            }
-
-            .control-row {
-                font-size: 12px;
+            h1 {
+                font-size: 28px;
+                /* さらに小さく */
                 margin: 2px 0;
             }
 
-            .key {
+            .info-container-row {
+                gap: 5px;
+                margin-bottom: 5px;
+                transform: scale(0.8);
+                /* 情報をさらにコンパクトに */
+            }
+
+            .info-box {
+                width: 260px;
+                padding: 6px 10px;
+            }
+
+            .box-title {
+                font-size: 13px;
+                margin-bottom: 2px;
+            }
+
+            .control-row {
                 font-size: 11px;
-                padding: 1px 5px;
+                margin: 1px 0;
+            }
+
+            .key {
+                font-size: 10px;
+                padding: 0px 4px;
             }
 
             .btn-container {
-                gap: 10px;
-                margin-bottom: 5px;
+                gap: 8px;
+                margin-top: 0;
+                margin-bottom: 2px;
             }
 
             button.kawaii-btn {
-                padding: 8px 20px;
-                font-size: 16px;
-                min-width: 140px;
+                padding: 6px 15px;
+                font-size: 14px;
+                min-width: 120px;
             }
 
             button.kawaii-btn.secondary {
-                min-width: 100px;
-                font-size: 14px;
-                padding: 6px 15px;
+                min-width: 90px;
+                font-size: 13px;
+                padding: 5px 12px;
             }
 
             .volume-container {
-                padding: 2px 10px;
-                margin-top: 2px;
+                padding: 1px 8px;
+                margin-top: 0;
+            }
+
+            #volume-slider {
+                width: 100px;
             }
 
             #result-title {
-                font-size: 36px;
-                margin-bottom: 5px;
+                font-size: 32px;
+                margin-bottom: 2px;
             }
 
             #final-score {
-                font-size: 24px;
-                margin-bottom: 10px;
+                font-size: 20px;
+                margin-bottom: 5px;
             }
 
             #ranking-section {
-                max-height: 120px;
-                margin-bottom: 10px;
+                max-height: 100px;
+                margin-bottom: 5px;
             }
 
             #score-input-container {
-                margin-bottom: 10px;
+                margin-bottom: 5px;
             }
         }
     </style>
