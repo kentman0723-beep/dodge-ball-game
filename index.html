@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ドッヂボール (Boot Shape Final)</title>
+    <title>THE ドッヂボール (Better Shoe Shape)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap"
@@ -102,6 +102,7 @@
             pointer-events: none;
         }
 
+        /* HUD設定 */
         #top-bar {
             position: absolute;
             top: 10px;
@@ -163,6 +164,7 @@
             display: none;
         }
 
+        /* スキルインジケーター */
         .skill-container {
             display: flex;
             gap: 8px;
@@ -766,24 +768,26 @@
             Assets.materials.ball = new THREE.MeshStandardMaterial({ map: tex, emissive: 0xff55a3, emissiveIntensity: 0.3, roughness: 0.4 });
             Assets.materials.blackBall = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x000000, roughness: 0.1, metalness: 0.9 });
 
-            // ★修正: 靴の形状 (スニーカー風に詳細化)
+            // ★修正: ブーツの形状 (さらに改良)
             const shoeShape = new THREE.Shape();
-            const s = 1.0;
-            shoeShape.moveTo(-0.6 * s, 0); // かかと下
-            shoeShape.lineTo(0.6 * s, 0);  // つま先下
-            shoeShape.quadraticCurveTo(0.9 * s, 0, 0.9 * s, 0.3 * s); // つま先
-            shoeShape.quadraticCurveTo(0.8 * s, 0.5 * s, 0.4 * s, 0.6 * s); // 甲
-            shoeShape.lineTo(-0.1 * s, 0.8 * s); // タン上
-            shoeShape.lineTo(-0.6 * s, 0.8 * s); // かかと上
-            shoeShape.lineTo(-0.6 * s, 0); // 閉じる
+            const s = 0.5; // スケール
+            // かかと下
+            shoeShape.moveTo(-1.2 * s, 0);
+            // ソール底面
+            shoeShape.lineTo(1.0 * s, 0);
+            // つま先 (丸み)
+            shoeShape.bezierCurveTo(1.6 * s, 0, 1.6 * s, 0.6 * s, 1.0 * s, 0.8 * s);
+            // 甲
+            shoeShape.lineTo(0.2 * s, 1.0 * s);
+            // ベロトップ
+            shoeShape.lineTo(-0.2 * s, 1.8 * s);
+            // 履き口
+            shoeShape.lineTo(-1.2 * s, 1.8 * s);
+            // かかと後ろ (カーブ)
+            shoeShape.bezierCurveTo(-1.6 * s, 1.0 * s, -1.4 * s, 0.4 * s, -1.2 * s, 0);
 
-            Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.5, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05 });
+            Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.8 * s, bevelEnabled: true, bevelThickness: 0.1 * s, bevelSize: 0.1 * s, bevelSegments: 3 });
             Assets.geometries.shoe.center();
-            // ★修正: 上下逆さまにならないように回転をリセット
-            // ExtrudeはZ方向に厚みが出る。ShapeはXY平面。
-            // これを地面に置くとき（Yアップ）、XZ平面に寝かせたいならX軸-90度回転。
-            // 立たせたい（側面を見せたい）なら回転なしでOKだが、アイテムとして回すなら立っていたほうが見栄えが良い。
-            // ここでは「立っている」状態をデフォルトにする。
 
             Assets.materials.shoe = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x0088ff, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.5 });
 
@@ -836,12 +840,8 @@
                 super(); this.type = 'speed';
                 const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
                 shoeMesh.scale.set(1.5, 1.5, 1.5);
-
-                // ★修正: 正しく立つように回転リセット＆調整
-                // ShapeをXY平面に描いたので、そのままではZ方向に厚みがある板。
-                // これをY軸回転させるなら、そのままでOK。ソールはY=0付近。
+                // ★修正: 向きを正立させる
                 shoeMesh.rotation.set(0, 0, 0);
-                // もし上下逆なら Math.PI をX軸にかけるが、座標系的にこれで正立のはず。
 
                 this.rotateGroup = new THREE.Group();
                 this.rotateGroup.add(shoeMesh);
