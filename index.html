@@ -1,1056 +1,1445 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE ドッヂボール (Boot Shape Final)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap"
+        rel="stylesheet">
+
     <style>
         /* --- 全体の設定 --- */
-        body { margin: 0; overflow: hidden; font-family: 'M PLUS Rounded 1c', sans-serif; user-select: none; background-color: #ffecf2; }
-        .bg-balls-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: -1; pointer-events: none; }
-        .bg-ball { position: absolute; border-radius: 50%; opacity: 0.6; animation: floatBall linear infinite; }
-        @keyframes floatBall { 0% { transform: translateY(110vh) rotate(0deg); } 100% { transform: translateY(-10vh) rotate(360deg); } }
-        .bb1 { width: 80px; height: 80px; background: #ffadd6; left: 10%; animation-duration: 8s; animation-delay: 0s; }
-        .bb2 { width: 120px; height: 120px; background: #aaddff; left: 30%; animation-duration: 12s; animation-delay: 2s; }
-        .bb3 { width: 60px; height: 60px; background: #ffffaa; left: 50%; animation-duration: 10s; animation-delay: 1s; }
-        .bb4 { width: 100px; height: 100px; background: #aaffaa; left: 70%; animation-duration: 14s; animation-delay: 3s; }
-        .bb5 { width: 70px; height: 70px; background: #ddaaff; left: 90%; animation-duration: 9s; animation-delay: 0.5s; }
-
-        #hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        
-        #top-bar { 
-            position: absolute; top: 10px; left: 50%; 
-            transform: translateX(-50%) scale(0.75); 
-            transform-origin: top center;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 5px 30px 10px; 
-            background: rgba(255, 255, 255, 0.5); 
-            border-radius: 25px; 
-            border: 2px solid rgba(255, 173, 214, 0.8); 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 320px; 
-            backdrop-filter: blur(4px); 
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            user-select: none;
+            background-color: #ffecf2;
         }
-        #timer-label { 
-            font-size: 14px; color: #ff5588; font-weight: 900; letter-spacing: 2px; margin-bottom: -2px; 
+
+        .bg-balls-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .bg-ball {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: floatBall linear infinite;
+        }
+
+        @keyframes floatBall {
+            0% {
+                transform: translateY(110vh) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+            }
+        }
+
+        .bb1 {
+            width: 80px;
+            height: 80px;
+            background: #ffadd6;
+            left: 10%;
+            animation-duration: 8s;
+            animation-delay: 0s;
+        }
+
+        .bb2 {
+            width: 120px;
+            height: 120px;
+            background: #aaddff;
+            left: 30%;
+            animation-duration: 12s;
+            animation-delay: 2s;
+        }
+
+        .bb3 {
+            width: 60px;
+            height: 60px;
+            background: #ffffaa;
+            left: 50%;
+            animation-duration: 10s;
+            animation-delay: 1s;
+        }
+
+        .bb4 {
+            width: 100px;
+            height: 100px;
+            background: #aaffaa;
+            left: 70%;
+            animation-duration: 14s;
+            animation-delay: 3s;
+        }
+
+        .bb5 {
+            width: 70px;
+            height: 70px;
+            background: #ddaaff;
+            left: 90%;
+            animation-duration: 9s;
+            animation-delay: 0.5s;
+        }
+
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #top-bar {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.75);
+            transform-origin: top center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px 30px 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 25px;
+            border: 2px solid rgba(255, 173, 214, 0.8);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 320px;
+            backdrop-filter: blur(4px);
+        }
+
+        #timer-label {
+            font-size: 14px;
+            color: #ff5588;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin-bottom: -2px;
             text-shadow: 1px 1px 0 #fff;
         }
-        #timer { 
-            font-size: 52px; font-weight: 900; color: #444; 
-            text-shadow: 2px 2px 0 #fff, 4px 4px 0 rgba(255, 173, 214, 0.5); 
-            line-height: 1.0; 
+
+        #timer {
+            font-size: 52px;
+            font-weight: 900;
+            color: #444;
+            text-shadow: 2px 2px 0 #fff, 4px 4px 0 rgba(255, 173, 214, 0.5);
+            line-height: 1.0;
         }
-        
-        .status-line { display: flex; justify-content: center; gap: 10px; margin-top: 5px; }
-        .status-text { 
-            font-size: 14px; font-weight: 900; color: #fff; padding: 4px 12px; border-radius: 15px; 
-            text-shadow: 1px 1px 1px rgba(0,0,0,0.3); box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        .status-line {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
         }
-        #speed-display { background: #00ccff; }
-        #shield-display { background: #00dd66; display: none; }
-        
-        .skill-container { display: flex; gap: 8px; margin-top: 5px; }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 900;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 15px;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #speed-display {
+            background: #00ccff;
+        }
+
+        #shield-display {
+            background: #00dd66;
+            display: none;
+        }
+
+        .skill-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
         .skill-box {
-            background: rgba(100, 100, 100, 0.8); 
-            padding: 4px 12px; 
-            border-radius: 15px; 
-            color: #fff; 
-            font-weight: bold; 
+            background: rgba(100, 100, 100, 0.8);
+            padding: 4px 12px;
+            border-radius: 15px;
+            color: #fff;
+            font-weight: bold;
             font-size: 12px;
-            transition: all 0.3s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            min-width: 90px; 
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 90px;
             white-space: nowrap;
         }
-        .skill-box.ready { background: #00ccff; box-shadow: 0 0 8px #00ccff; transform: scale(1.05); }
-        .skill-box.active { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
-        .skill-box.cooldown { background: rgba(80, 80, 80, 0.8); color: #ccc; }
-        .skill-box.ninja-ready { background: #8800ff; box-shadow: 0 0 8px #8800ff; }
 
-        .overlay-screen { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+        .skill-box.ready {
+            background: #00ccff;
+            box-shadow: 0 0 8px #00ccff;
+            transform: scale(1.05);
+        }
+
+        .skill-box.active {
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+        .skill-box.cooldown {
+            background: rgba(80, 80, 80, 0.8);
+            color: #ccc;
+        }
+
+        .skill-box.ninja-ready {
+            background: #8800ff;
+            box-shadow: 0 0 8px #8800ff;
+        }
+
+        .overlay-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(135deg, rgba(255, 220, 240, 0.9) 0%, rgba(220, 240, 255, 0.9) 100%);
-            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; pointer-events: auto; display: none; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            pointer-events: auto;
+            display: none;
             transform: scale(0.95);
         }
-        #start-screen { display: flex; z-index: 150; }
 
-        h1 { font-size: 64px; color: #ff6699; margin: 0 0 20px 0; text-shadow: 3px 3px 0 #fff, 5px 5px 0 #66ccff; text-align: center; line-height: 1.2; font-weight: 900; }
-        
-        .info-container-row { display: flex; gap: 20px; justify-content: center; align-items: flex-start; margin-bottom: 20px; }
+        #start-screen {
+            display: flex;
+            z-index: 150;
+        }
+
+        h1 {
+            font-size: 64px;
+            color: #ff6699;
+            margin: 0 0 20px 0;
+            text-shadow: 3px 3px 0 #fff, 5px 5px 0 #66ccff;
+            text-align: center;
+            line-height: 1.2;
+            font-weight: 900;
+        }
+
+        .info-container-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
         .info-box {
-            background: #fff; border: 3px dotted #66ccff; border-radius: 20px; padding: 15px 20px; text-align: left; width: 340px;
-            box-shadow: 0 5px 15px rgba(100, 200, 255, 0.2); color: #555;
+            background: #fff;
+            border: 3px dotted #66ccff;
+            border-radius: 20px;
+            padding: 15px 20px;
+            text-align: left;
+            width: 340px;
+            box-shadow: 0 5px 15px rgba(100, 200, 255, 0.2);
+            color: #555;
         }
-        .box-title { color: #ff6699; font-weight: 900; margin-bottom: 8px; font-size: 18px; text-align: center; border-bottom: 2px dashed #ffecf2; padding-bottom: 5px; }
-        .control-row { font-size: 15px; color: #666; margin: 6px 0; display: flex; align-items: center; font-weight: bold; }
-        .key {
-            display: inline-block; background: #ffeedd; border: 2px solid #ffbb99; border-bottom: 3px solid #ffbb99;
-            border-radius: 10px; padding: 3px 8px; font-weight: bold; color: #ff8866; margin-right: 10px; min-width: 25px; text-align: center; font-size: 13px;
-        }
-        .item-icon {
-            display: inline-block; width: 24px; height: 24px; margin-right: 10px; border-radius: 50%;
-            text-align: center; line-height: 24px; font-size: 16px; background: #fff; border: 2px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .icon-speed { color: #00ccff; border-color: #ccffff; }
-        .icon-shield { color: #00dd66; border-color: #ccffdd; }
 
-        .btn-container { display: flex; gap: 20px; align-items: center; margin-bottom: 10px; margin-top: 5px; }
-        button.kawaii-btn {
-            border: none; padding: 12px 35px; font-size: 20px; font-weight: 900; cursor: pointer; transition: all 0.2s;
-            font-family: 'M PLUS Rounded 1c', sans-serif; min-width: 200px; border-radius: 50px; color: #fff;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.1); position: relative; top: 0;
+        .box-title {
+            color: #ff6699;
+            font-weight: 900;
+            margin-bottom: 8px;
+            font-size: 18px;
+            text-align: center;
+            border-bottom: 2px dashed #ffecf2;
+            padding-bottom: 5px;
         }
-        button.kawaii-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 rgba(0,0,0,0.1), 0 15px 25px rgba(0,0,0,0.15); }
-        button.kawaii-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.1); }
-        #start-btn, #retry-btn, #submit-score-btn { background: linear-gradient(to bottom, #ff88bb, #ff6699); text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
-        #start-btn:hover, #retry-btn:hover, #submit-score-btn:hover { background: linear-gradient(to bottom, #ff99cc, #ff77aa); }
-        button.kawaii-btn.secondary { min-width: 150px; font-size: 16px; padding: 10px 25px; background: linear-gradient(to bottom, #66ccff, #44aaff); }
-        button.kawaii-btn.secondary:hover { background: linear-gradient(to bottom, #88ddff, #66bbff); }
-        #mute-btn { margin-left: 20px; padding: 8px 20px; font-size: 14px; min-width: auto; border-radius: 30px; }
-        #mute-btn.muted { background: linear-gradient(to bottom, #aaa, #888); }
+
+        .control-row {
+            font-size: 15px;
+            color: #666;
+            margin: 6px 0;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .key {
+            display: inline-block;
+            background: #ffeedd;
+            border: 2px solid #ffbb99;
+            border-bottom: 3px solid #ffbb99;
+            border-radius: 10px;
+            padding: 3px 8px;
+            font-weight: bold;
+            color: #ff8866;
+            margin-right: 10px;
+            min-width: 25px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .item-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 16px;
+            background: #fff;
+            border: 2px solid #eee;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-speed {
+            color: #00ccff;
+            border-color: #ccffff;
+        }
+
+        .icon-shield {
+            color: #00dd66;
+            border-color: #ccffdd;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 10px;
+            margin-top: 5px;
+        }
+
+        button.kawaii-btn {
+            border: none;
+            padding: 12px 35px;
+            font-size: 20px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            min-width: 200px;
+            border-radius: 50px;
+            color: #fff;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            top: 0;
+        }
+
+        button.kawaii-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 rgba(0, 0, 0, 0.1), 0 15px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        button.kawaii-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1), 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #start-btn,
+        #retry-btn,
+        #submit-score-btn {
+            background: linear-gradient(to bottom, #ff88bb, #ff6699);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        #start-btn:hover,
+        #retry-btn:hover,
+        #submit-score-btn:hover {
+            background: linear-gradient(to bottom, #ff99cc, #ff77aa);
+        }
+
+        button.kawaii-btn.secondary {
+            min-width: 150px;
+            font-size: 16px;
+            padding: 10px 25px;
+            background: linear-gradient(to bottom, #66ccff, #44aaff);
+        }
+
+        button.kawaii-btn.secondary:hover {
+            background: linear-gradient(to bottom, #88ddff, #66bbff);
+        }
+
+        #mute-btn {
+            margin-left: 20px;
+            padding: 8px 20px;
+            font-size: 14px;
+            min-width: auto;
+            border-radius: 30px;
+        }
+
+        #mute-btn.muted {
+            background: linear-gradient(to bottom, #aaa, #888);
+        }
 
         .volume-container {
-            display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 5px;
-            color: #6699ff; font-weight: bold; background: rgba(255,255,255,0.6); padding: 5px 15px; border-radius: 30px; width: fit-content;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin-top: 5px;
+            color: #6699ff;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 5px 15px;
+            border-radius: 30px;
+            width: fit-content;
         }
-        .volume-label { margin-right: 10px; font-size: 14px; }
-        input[type=range] { -webkit-appearance: none; width: 120px; height: 8px; background: #ddeeff; border-radius: 10px; outline: none; border: 2px solid #bfe0ff; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #ff6699; cursor: pointer; border: 3px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        #result-title { font-size: 70px; color: #ff6699; margin-bottom: 10px; text-shadow: 3px 3px 0 #fff, 5px 5px 0 #ffcc00; }
-        #final-score { font-size: 45px; color: #555; margin-bottom: 20px; font-weight: 900; text-shadow: 2px 2px 0 #fff; }
-        
-        #loading {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffecf2; color: #ff6699; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            font-size: 32px; font-weight: 900; letter-spacing: 2px; z-index: 200; text-shadow: 2px 2px 0 #fff;
+        .volume-label {
+            margin-right: 10px;
+            font-size: 14px;
         }
-        #error-log { color: #ff5555; font-size: 14px; margin-top: 20px; white-space: pre-wrap; text-align: left; max-width: 80%; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 10px; border: 2px solid #ffaaaa; display: none; }
-        
-        #sound-notice { display: none; }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 120px;
+            height: 8px;
+            background: #ddeeff;
+            border-radius: 10px;
+            outline: none;
+            border: 2px solid #bfe0ff;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ff6699;
+            cursor: pointer;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #result-title {
+            font-size: 70px;
+            color: #ff6699;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 0 #fff, 5px 5px 0 #ffcc00;
+        }
+
+        #final-score {
+            font-size: 45px;
+            color: #555;
+            margin-bottom: 20px;
+            font-weight: 900;
+            text-shadow: 2px 2px 0 #fff;
+        }
+
+        #loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffecf2;
+            color: #ff6699;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            z-index: 200;
+            text-shadow: 2px 2px 0 #fff;
+        }
+
+        #error-log {
+            color: #ff5555;
+            font-size: 14px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            text-align: left;
+            max-width: 80%;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #ffaaaa;
+            display: none;
+        }
+
+        #sound-notice {
+            display: none;
+        }
 
         /* ランキング */
         #ranking-section {
-            background: #fff; border: 4px dotted #ffcc00; border-radius: 20px;
-            padding: 15px; width: 90%; max-width: 450px; max-height: 250px; overflow-y: auto;
-            margin-bottom: 20px; text-align: left;
+            background: #fff;
+            border: 4px dotted #ffcc00;
+            border-radius: 20px;
+            padding: 15px;
+            width: 90%;
+            max-width: 450px;
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            text-align: left;
         }
-        .ranking-row { display: flex; justify-content: space-between; padding: 4px 10px; border-bottom: 1px dashed #eee; font-size: 15px; }
-        .ranking-row:nth-child(1) { color: #e6b422; font-weight: bold; font-size: 1.2em; }
-        .ranking-row:nth-child(2) { color: #c0c0c0; font-weight: bold; }
-        .ranking-row:nth-child(3) { color: #b87333; font-weight: bold; }
-        .rank-name { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        
-        #score-input-container { margin-bottom: 20px; display: flex; gap: 10px; }
+
+        .ranking-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 10px;
+            border-bottom: 1px dashed #eee;
+            font-size: 15px;
+        }
+
+        .ranking-row:nth-child(1) {
+            color: #e6b422;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .ranking-row:nth-child(2) {
+            color: #c0c0c0;
+            font-weight: bold;
+        }
+
+        .ranking-row:nth-child(3) {
+            color: #b87333;
+            font-weight: bold;
+        }
+
+        .rank-name {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #score-input-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
         #player-name-input {
-            padding: 8px; border-radius: 10px; border: 2px solid #ffadd6; font-size: 16px; font-family: 'M PLUS Rounded 1c', sans-serif;
-            width: 180px; outline: none;
+            padding: 8px;
+            border-radius: 10px;
+            border: 2px solid #ffadd6;
+            font-size: 16px;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            width: 180px;
+            outline: none;
         }
     </style>
     <script type="importmap">
         { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
     </script>
 </head>
+
 <body>
 
-<div id="loading">
-    <div id="loading-text">LOADING...</div>
-    <div id="error-log"></div>
-</div>
+    <div id="loading">
+        <div id="loading-text">LOADING...</div>
+        <div id="error-log"></div>
+    </div>
 
-<div class="bg-balls-container">
-    <div class="bg-ball bb1"></div> <div class="bg-ball bb2"></div> <div class="bg-ball bb3"></div>
-    <div class="bg-ball bb4"></div> <div class="bg-ball bb5"></div>
-</div>
+    <div class="bg-balls-container">
+        <div class="bg-ball bb1"></div>
+        <div class="bg-ball bb2"></div>
+        <div class="bg-ball bb3"></div>
+        <div class="bg-ball bb4"></div>
+        <div class="bg-ball bb5"></div>
+    </div>
 
-<div id="start-screen" class="overlay-screen">
-    <h1>THE ドッヂボール</h1>
-    
-    <div class="info-container-row">
-        <!-- 操作・スキル説明 -->
-        <div class="info-box">
-            <div class="box-title">操作 & スキル (時間解禁)</div>
-            <div class="control-row"><span class="key">右クリック</span> 移動 / <span class="key">S</span> 停止</div>
-            <div style="border-top: 1px dashed #ddd; margin: 10px 0;"></div>
-            <div class="control-row"><span class="key">Q</span> 電撃玉 (60秒後)</div>
-            <div style="font-size:13px; margin-left: 5px;">ピンクのボールを破壊！(CD:1秒)</div>
-            <div class="control-row" style="margin-top:8px;"><span class="key">W</span> バリア (100秒後)</div>
-            <div style="font-size:13px; margin-left: 5px;">3秒間守るシールド展開 (CD:2秒)</div>
-            <div class="control-row" style="margin-top:8px;"><span class="key">E</span> ブリンク (120秒後)</div>
-            <div style="font-size:13px; margin-left: 5px;">残像を残して瞬間移動＆無敵 (CD:3秒)</div>
+    <div id="start-screen" class="overlay-screen">
+        <h1>THE ドッヂボール</h1>
+
+        <div class="info-container-row">
+            <!-- 操作・スキル説明 -->
+            <div class="info-box">
+                <div class="box-title">操作 & スキル (時間解禁)</div>
+                <div class="control-row"><span class="key">右クリック</span> 移動 / <span class="key">S</span> 停止</div>
+                <div style="border-top: 1px dashed #ddd; margin: 10px 0;"></div>
+                <div class="control-row"><span class="key">Q</span> 電撃玉 (60秒後)</div>
+                <div style="font-size:13px; margin-left: 5px;">ピンクのボールを破壊！(CD:1秒)</div>
+                <div class="control-row" style="margin-top:8px;"><span class="key">W</span> バリア (100秒後)</div>
+                <div style="font-size:13px; margin-left: 5px;">3秒間守るシールド展開 (CD:2秒)</div>
+                <div class="control-row" style="margin-top:8px;"><span class="key">E</span> ブリンク (120秒後)</div>
+                <div style="font-size:13px; margin-left: 5px;">残像を残して瞬間移動＆無敵 (CD:3秒)</div>
+            </div>
+
+            <!-- アイテム説明 -->
+            <div class="info-box">
+                <div class="box-title">アイテム</div>
+                <div class="control-row"><span class="item-icon icon-speed">👟</span> 靴：スピードUP (永続)</div>
+                <div class="control-row"><span class="item-icon icon-shield">🛡️</span> 盾：ボールを1回防ぐ</div>
+            </div>
         </div>
 
-        <!-- アイテム説明 -->
-        <div class="info-box">
-            <div class="box-title">アイテム</div>
-            <div class="control-row"><span class="item-icon icon-speed">👟</span> 靴：スピードUP (永続)</div>
-            <div class="control-row"><span class="item-icon icon-shield">🛡️</span> 盾：ボールを1回防ぐ</div>
+        <div class="btn-container">
+            <button id="start-btn" class="kawaii-btn">ゲームスタート！</button>
+            <button id="mute-btn" class="kawaii-btn secondary">🔊 音ON</button>
+        </div>
+        <div class="volume-container">
+            <span class="volume-label">おんりょう</span>
+            <input type="range" id="volume-slider" min="0" max="100" value="50">
+        </div>
+        <div id="sound-notice">※soundsフォルダに音声ファイルが必要です</div>
+    </div>
+
+    <div id="result-overlay" class="overlay-screen">
+        <h1 id="result-title">ゲームオーバー</h1>
+        <div id="final-score">記録: 0.00秒</div>
+
+        <!-- ランキング登録フォーム -->
+        <div id="score-input-container">
+            <input type="text" id="player-name-input" placeholder="名前を入力(10文字)" maxlength="10">
+            <button id="submit-score-btn" class="kawaii-btn" style="min-width: 100px; padding: 8px;">登録</button>
+        </div>
+
+        <!-- ランキング表示エリア -->
+        <div class="box-title" style="color:#fff; text-shadow:2px 2px 0 #ff6699;">TOP 30 RANKING</div>
+        <div id="ranking-section">
+            <div style="text-align:center;">読み込み中...</div>
+        </div>
+
+        <div class="btn-container">
+            <button id="retry-btn" class="kawaii-btn">もう一回！</button>
+            <button id="menu-btn" class="kawaii-btn secondary">メニューへ</button>
         </div>
     </div>
 
-    <div class="btn-container">
-        <button id="start-btn" class="kawaii-btn">ゲームスタート！</button>
-        <button id="mute-btn" class="kawaii-btn secondary">🔊 音ON</button>
-    </div>
-    <div class="volume-container">
-        <span class="volume-label">おんりょう</span>
-        <input type="range" id="volume-slider" min="0" max="100" value="50">
-    </div>
-    <div id="sound-notice">※soundsフォルダに音声ファイルが必要です</div>
-</div>
+    <div id="hud">
+        <div id="top-bar">
+            <div id="timer-label">にげた時間</div>
+            <div id="timer">0.00</div>
 
-<div id="result-overlay" class="overlay-screen">
-    <h1 id="result-title">ゲームオーバー</h1>
-    <div id="final-score">記録: 0.00秒</div>
-    
-    <!-- ランキング登録フォーム -->
-    <div id="score-input-container">
-        <input type="text" id="player-name-input" placeholder="名前を入力(10文字)" maxlength="10">
-        <button id="submit-score-btn" class="kawaii-btn" style="min-width: 100px; padding: 8px;">登録</button>
-    </div>
+            <div class="skill-container">
+                <div id="skill-q" class="skill-box">Q: 60秒後...</div>
+                <div id="skill-w" class="skill-box">W: 100秒後...</div>
+                <div id="skill-e" class="skill-box">E: 120秒後...</div>
+            </div>
 
-    <!-- ランキング表示エリア -->
-    <div class="box-title" style="color:#fff; text-shadow:2px 2px 0 #ff6699;">TOP 30 RANKING</div>
-    <div id="ranking-section">
-        <div style="text-align:center;">読み込み中...</div>
-    </div>
-
-    <div class="btn-container">
-        <button id="retry-btn" class="kawaii-btn">もう一回！</button>
-        <button id="menu-btn" class="kawaii-btn secondary">メニューへ</button>
-    </div>
-</div>
-
-<div id="hud">
-    <div id="top-bar">
-        <div id="timer-label">にげた時間</div>
-        <div id="timer">0.00</div>
-        
-        <div class="skill-container">
-            <div id="skill-q" class="skill-box">Q: 60秒後...</div>
-            <div id="skill-w" class="skill-box">W: 100秒後...</div>
-            <div id="skill-e" class="skill-box">E: 120秒後...</div>
-        </div>
-
-        <div class="status-line">
-            <div id="speed-display" class="status-text">スピード: 100%</div>
-            <div id="shield-display" class="status-text">♥ バリア発動中 ♥</div>
+            <div class="status-line">
+                <div id="speed-display" class="status-text">スピード: 100%</div>
+                <div id="shield-display" class="status-text">♥ バリア発動中 ♥</div>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Firebase SDK -->
-<script type="module">
-    import * as THREE from 'three';
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <!-- Firebase SDK -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // Firebase設定
-    const firebaseConfig = {
-      apiKey: "AIzaSyC9qf1OCM5v8zCMSJIpvqdGoqrCewTyQbQ",
-      authDomain: "dodge-ranking.firebaseapp.com",
-      projectId: "dodge-ranking",
-      storageBucket: "dodge-ranking.firebasestorage.app",
-      messagingSenderId: "541558141177",
-      appId: "1:541558141177:web:d633cc34b63df22f18b228"
-    };
+        // Firebase設定
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9qf1OCM5v8zCMSJIpvqdGoqrCewTyQbQ",
+            authDomain: "dodge-ranking.firebaseapp.com",
+            projectId: "dodge-ranking",
+            storageBucket: "dodge-ranking.firebasestorage.app",
+            messagingSenderId: "541558141177",
+            appId: "1:541558141177:web:d633cc34b63df22f18b228"
+        };
 
-    let db;
-    try {
-        const app = initializeApp(firebaseConfig);
-        db = getFirestore(app);
-    } catch(e) { console.error("Firebase init error:", e); }
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (e) { console.error("Firebase init error:", e); }
 
-    function showError(msg) {
-        const el = document.getElementById('error-log'); el.style.display = 'block';
-        el.innerText += "Error: " + msg + "\n"; document.getElementById('loading-text').innerText = "SYSTEM FAILURE"; console.error(msg);
-    }
-    window.onerror = function(msg, url, line) { showError(`${msg}\nLine: ${line}`); return false; };
-
-    // ★修正: 右クリックメニュー完全抑制
-    document.oncontextmenu = function() { return false; };
-
-    class SoundManager {
-        constructor() {
-            this.sounds = {}; this.currentBgmKey = null;
-            this.files = {
-                bgm: 'sounds/bgm.mp3', start: 'sounds/start.mp3', item: 'sounds/item.mp3',
-                shield: 'sounds/shield.mp3', break: 'sounds/break.mp3', defeat: 'sounds/defeat.mp3',
-                menu: 'sounds/menu.mp3', skill: 'sounds/skill.mp3'
-            };
-            this.isMuted = false; this.masterVolume = 0.5;
+        function showError(msg) {
+            const el = document.getElementById('error-log'); el.style.display = 'block';
+            el.innerText += "Error: " + msg + "\n"; document.getElementById('loading-text').innerText = "SYSTEM FAILURE"; console.error(msg);
         }
-        init() {
-            for (const [key, path] of Object.entries(this.files)) {
-                const audio = new Audio(path);
-                if (key === 'menu' || key === 'bgm') { audio.baseVolume = 0.2; audio.loop = true; } else { audio.baseVolume = 0.4; }
-                audio.volume = audio.baseVolume * this.masterVolume;
-                this.sounds[key] = audio;
-                audio.onerror = () => { console.warn(`Sound file not found: ${path}`); };
+        window.onerror = function (msg, url, line) { showError(`${msg}\nLine: ${line}`); return false; };
+
+        // ★修正: 右クリックメニュー完全抑制
+        document.oncontextmenu = function () { return false; };
+
+        class SoundManager {
+            constructor() {
+                this.sounds = {}; this.currentBgmKey = null;
+                this.files = {
+                    bgm: 'sounds/bgm.mp3', start: 'sounds/start.mp3', item: 'sounds/item.mp3',
+                    shield: 'sounds/shield.mp3', break: 'sounds/break.mp3', defeat: 'sounds/defeat.mp3',
+                    menu: 'sounds/menu.mp3', skill: 'sounds/skill.mp3'
+                };
+                this.isMuted = false; this.masterVolume = 0.5;
             }
-        }
-        setVolume(val) {
-            this.masterVolume = Math.max(0, Math.min(1, val));
-            for (const key in this.sounds) { this.sounds[key].volume = this.sounds[key].baseVolume * this.masterVolume; }
-        }
-        switchBGM(key) {
-            if (this.isMuted) return;
-            if (this.currentBgmKey === key && this.sounds[key] && !this.sounds[key].paused) return;
-            this.stopAllBGM();
-            const sound = this.sounds[key];
-            if (sound) { sound.currentTime = 0; sound.volume = sound.baseVolume * this.masterVolume; sound.play().catch(e => console.log("Auto-play blocked")); this.currentBgmKey = key; }
-        }
-        play(key) {
-            if (this.isMuted || !this.sounds[key]) return;
-            const sound = this.sounds[key]; sound.volume = sound.baseVolume * this.masterVolume;
-            if (key !== 'menu' && key !== 'bgm') { sound.currentTime = 0; sound.play().catch(e => {}); } else { sound.play().catch(e => {}); }
-        }
-        stopAllBGM() {
-            if (this.sounds['menu']) { this.sounds['menu'].pause(); this.sounds['menu'].currentTime = 0; }
-            if (this.sounds['bgm']) { this.sounds['bgm'].pause(); this.sounds['bgm'].currentTime = 0; }
-            this.currentBgmKey = null;
-        }
-        toggleMute() {
-            this.isMuted = !this.isMuted;
-            if (this.isMuted) { this.stopAllBGM(); } else { if (gameActive) this.switchBGM('bgm'); else this.switchBGM('menu'); }
-            return this.isMuted;
-        }
-    }
-    const soundManager = new SoundManager();
-
-    const CONFIG = {
-        mapLimit: 250, mapVisualSize: 600,
-        basePlayerSpeed: 24, cameraHeight: 50, cameraOffsetZ: 40, 
-        ballRadius: 1.5, baseBallSpeedMin: 15, baseBallSpeedMax: 24, spawnDistance: 350,
-        speedItemInterval: 3.0, speedBoostAmount: 3.0, shieldItemInterval: 15.0,
-        skillUnlockTimeQ: 60.0, skillUnlockTimeW: 100.0, skillUnlockTimeE: 120.0,
-        qCooldown: 1.0, wCooldown: 2.0, eCooldown: 3.0,
-        wDuration: 3.0, eDuration: 0.15, // ブリンクなので短く
-        dashSpeedMultiplier: 8.0 // 速度倍率アップ
-    };
-
-    let scene, camera, renderer, clock, raycaster, mouse;
-    let player, mapGroup, moveIndicator;
-    let skills = [], items = [], lightnings = [], afterimages = []; // 残像用配列追加
-    let gameActive = false;
-    let survivalTime = 0;
-    let spawnCooldown = 0, speedItemCooldown = 0, shieldItemCooldown = 0;
-    let currentPlayerSpeed = CONFIG.basePlayerSpeed;
-    
-    let itemShieldActive = false, wSkillShieldActive = false, wSkillTimer = 0;
-    let isDashing = false, dashTimer = 0;
-    
-    let qUnlocked = false, wUnlocked = false, eUnlocked = false;
-    let qCoolTimer = 0, wCoolTimer = 0, eCoolTimer = 0;
-    
-    let targetPos = new THREE.Vector3();
-    let isRightMouseDown = false; // マウス状態管理
-
-    function disposeObject(obj) {
-        if (!obj) return;
-        scene.remove(obj);
-        obj.traverse((child) => {
-            if (child.isMesh) {
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) {
-                    if (Array.isArray(child.material)) child.material.forEach(m => m.dispose()); else child.material.dispose();
+            init() {
+                for (const [key, path] of Object.entries(this.files)) {
+                    const audio = new Audio(path);
+                    if (key === 'menu' || key === 'bgm') { audio.baseVolume = 0.2; audio.loop = true; } else { audio.baseVolume = 0.4; }
+                    audio.volume = audio.baseVolume * this.masterVolume;
+                    this.sounds[key] = audio;
+                    audio.onerror = () => { console.warn(`Sound file not found: ${path}`); };
                 }
             }
-        });
-    }
-
-    const Assets = { geometries: {}, materials: {} };
-    function initAssets() {
-        const canvas = document.createElement('canvas'); canvas.width=64; canvas.height=64;
-        const ctx = canvas.getContext('2d');
-        const grad = ctx.createRadialGradient(32,32,5,32,32,32);
-        grad.addColorStop(0, '#ffadd6'); grad.addColorStop(1, '#ff55a3'); 
-        ctx.fillStyle = grad; ctx.fillRect(0,0,64,64);
-        const tex = new THREE.CanvasTexture(canvas);
-        Assets.geometries.ball = new THREE.SphereGeometry(1, 24, 24);
-        Assets.materials.ball = new THREE.MeshStandardMaterial({ map: tex, emissive: 0xff55a3, emissiveIntensity: 0.3, roughness: 0.4 });
-        Assets.materials.blackBall = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x000000, roughness: 0.1, metalness: 0.9 });
-
-        // ★修正: 靴の形状 (スニーカー風に詳細化)
-        const shoeShape = new THREE.Shape();
-        const s = 1.0;
-        shoeShape.moveTo(-0.6*s, 0); // かかと下
-        shoeShape.lineTo(0.6*s, 0);  // つま先下
-        shoeShape.quadraticCurveTo(0.9*s, 0, 0.9*s, 0.3*s); // つま先
-        shoeShape.quadraticCurveTo(0.8*s, 0.5*s, 0.4*s, 0.6*s); // 甲
-        shoeShape.lineTo(-0.1*s, 0.8*s); // タン上
-        shoeShape.lineTo(-0.6*s, 0.8*s); // かかと上
-        shoeShape.lineTo(-0.6*s, 0); // 閉じる
-
-        Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.5, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
-        Assets.geometries.shoe.center();
-        // ★修正: 上下逆さまにならないように回転をリセット
-        // ExtrudeはZ方向に厚みが出る。ShapeはXY平面。
-        // これを地面に置くとき（Yアップ）、XZ平面に寝かせたいならX軸-90度回転。
-        // 立たせたい（側面を見せたい）なら回転なしでOKだが、アイテムとして回すなら立っていたほうが見栄えが良い。
-        // ここでは「立っている」状態をデフォルトにする。
-        
-        Assets.materials.shoe = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x0088ff, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.5 });
-
-        // 盾アイテム
-        const shieldShape = new THREE.Shape();
-        shieldShape.moveTo(-0.5, 0.6); shieldShape.lineTo(0.5, 0.6); shieldShape.lineTo(0.5, 0.2);
-        shieldShape.quadraticCurveTo(0.5, -0.6, 0, -0.8); shieldShape.quadraticCurveTo(-0.5, -0.6, -0.5, 0.2); shieldShape.lineTo(-0.5, 0.6);
-        Assets.geometries.shieldItem = new THREE.ExtrudeGeometry(shieldShape, { depth: 0.2, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
-        Assets.geometries.shieldItem.center();
-        Assets.materials.shieldItem = new THREE.MeshStandardMaterial({ color: 0x00ff88, emissive: 0x00cc66, emissiveIntensity: 0.8, roughness: 0.3, metalness: 0.7 });
-
-        Assets.geometries.lightning = new THREE.IcosahedronGeometry(1, 0); 
-        Assets.materials.lightning = new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 2.0, roughness: 0.1, metalness: 0.5, wireframe: false });
-        
-        Assets.geometries.shield = new THREE.SphereGeometry(2.5, 24, 24);
-        Assets.materials.shield = new THREE.MeshBasicMaterial({ color: 0x00aaff, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
-    }
-
-    function createTexture(type) {
-        const size = 512; const canvas = document.createElement('canvas');
-        canvas.width = size; canvas.height = size; const ctx = canvas.getContext('2d');
-        if (type === 'grass') {
-            ctx.fillStyle = '#2a5a2a'; ctx.fillRect(0,0,size,size);
-            for(let i=0;i<5000;i++){ ctx.fillStyle = Math.random()>0.5?'#3a6a3a':'#1a4a1a'; ctx.fillRect(Math.random()*size,Math.random()*size, 3, 3); }
+            setVolume(val) {
+                this.masterVolume = Math.max(0, Math.min(1, val));
+                for (const key in this.sounds) { this.sounds[key].volume = this.sounds[key].baseVolume * this.masterVolume; }
+            }
+            switchBGM(key) {
+                if (this.isMuted) return;
+                if (this.currentBgmKey === key && this.sounds[key] && !this.sounds[key].paused) return;
+                this.stopAllBGM();
+                const sound = this.sounds[key];
+                if (sound) { sound.currentTime = 0; sound.volume = sound.baseVolume * this.masterVolume; sound.play().catch(e => console.log("Auto-play blocked")); this.currentBgmKey = key; }
+            }
+            play(key) {
+                if (this.isMuted || !this.sounds[key]) return;
+                const sound = this.sounds[key]; sound.volume = sound.baseVolume * this.masterVolume;
+                if (key !== 'menu' && key !== 'bgm') { sound.currentTime = 0; sound.play().catch(e => { }); } else { sound.play().catch(e => { }); }
+            }
+            stopAllBGM() {
+                if (this.sounds['menu']) { this.sounds['menu'].pause(); this.sounds['menu'].currentTime = 0; }
+                if (this.sounds['bgm']) { this.sounds['bgm'].pause(); this.sounds['bgm'].currentTime = 0; }
+                this.currentBgmKey = null;
+            }
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                if (this.isMuted) { this.stopAllBGM(); } else { if (gameActive) this.switchBGM('bgm'); else this.switchBGM('menu'); }
+                return this.isMuted;
+            }
         }
-        const tex = new THREE.CanvasTexture(canvas);
-        tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.colorSpace = THREE.SRGBColorSpace;
-        return tex;
-    }
-    const TEXTURES = { grass: createTexture('grass') };
+        const soundManager = new SoundManager();
 
-    class GameItem {
-        constructor() {
-            this.mesh = new THREE.Group();
-            this.active = true;
-            const range = CONFIG.mapLimit - 10;
-            const x = (Math.random() - 0.5) * 2 * range;
-            const z = (Math.random() - 0.5) * 2 * range;
-            this.mesh.position.set(x, 2.5, z);
-            this.baseY = 2.5; this.floatOffset = Math.random() * 100;
-            scene.add(this.mesh);
-        }
-        update(dt, time) { }
-        remove() { scene.remove(this.mesh); this.active = false; }
-    }
+        const CONFIG = {
+            mapLimit: 250, mapVisualSize: 600,
+            basePlayerSpeed: 24, cameraHeight: 50, cameraOffsetZ: 40,
+            ballRadius: 1.5, baseBallSpeedMin: 15, baseBallSpeedMax: 24, spawnDistance: 350,
+            speedItemInterval: 3.0, speedBoostAmount: 3.0, shieldItemInterval: 15.0,
+            skillUnlockTimeQ: 60.0, skillUnlockTimeW: 100.0, skillUnlockTimeE: 120.0,
+            qCooldown: 1.0, wCooldown: 2.0, eCooldown: 3.0,
+            wDuration: 3.0, eDuration: 0.15, // ブリンクなので短く
+            dashSpeedMultiplier: 8.0 // 速度倍率アップ
+        };
 
-    // 靴アイテム
-    class SpeedItem extends GameItem {
-        constructor() {
-            super(); this.type = 'speed';
-            const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
-            shoeMesh.scale.set(1.5, 1.5, 1.5);
-            
-            // ★修正: 正しく立つように回転リセット＆調整
-            // ShapeをXY平面に描いたので、そのままではZ方向に厚みがある板。
-            // これをY軸回転させるなら、そのままでOK。ソールはY=0付近。
-            shoeMesh.rotation.set(0, 0, 0); 
-            // もし上下逆なら Math.PI をX軸にかけるが、座標系的にこれで正立のはず。
-            
-            this.rotateGroup = new THREE.Group(); 
-            this.rotateGroup.add(shoeMesh);
-            this.mesh.add(this.rotateGroup);
-        }
-        update(dt, time) {
-            this.rotateGroup.rotation.y += dt * 2.0;
-            this.mesh.position.y = this.baseY + Math.sin(time * 3 + this.floatOffset) * 0.5;
-        }
-    }
+        let scene, camera, renderer, clock, raycaster, mouse;
+        let player, mapGroup, moveIndicator;
+        let skills = [], items = [], lightnings = [], afterimages = []; // 残像用配列追加
+        let gameActive = false;
+        let survivalTime = 0;
+        let spawnCooldown = 0, speedItemCooldown = 0, shieldItemCooldown = 0;
+        let currentPlayerSpeed = CONFIG.basePlayerSpeed;
 
-    // 盾アイテム
-    class ShieldItem extends GameItem {
-        constructor() {
-            super(); this.type = 'shield';
-            const shieldMesh = new THREE.Mesh(Assets.geometries.shieldItem, Assets.materials.shieldItem);
-            shieldMesh.scale.set(1.5, 1.5, 1.5);
-            this.rotateGroup = new THREE.Group(); this.rotateGroup.add(shieldMesh);
-            this.mesh.add(this.rotateGroup);
-        }
-        update(dt, time) {
-            this.rotateGroup.rotation.y += dt * 1.5;
-            this.mesh.position.y = this.baseY + Math.sin(time * 2 + this.floatOffset) * 0.5;
-        }
-    }
+        let itemShieldActive = false, wSkillShieldActive = false, wSkillTimer = 0;
+        let isDashing = false, dashTimer = 0;
 
-    class LightningShot {
-        constructor(pos, dir) {
-            this.mesh = new THREE.Mesh(Assets.geometries.lightning, Assets.materials.lightning);
-            this.mesh.scale.set(4.0, 4.0, 4.0);
-            this.mesh.position.copy(pos); this.mesh.position.y = 2.5;
-            this.velocity = dir.clone().normalize().multiplyScalar(60);
-            this.life = 3.0;
-            scene.add(this.mesh);
-        }
-        update(dt) {
-            this.mesh.position.addScaledVector(this.velocity, dt);
-            this.mesh.rotation.x += dt * 10; this.mesh.rotation.y += dt * 10;
-            this.life -= dt;
-            return this.life > 0;
-        }
-    }
+        let qUnlocked = false, wUnlocked = false, eUnlocked = false;
+        let qCoolTimer = 0, wCoolTimer = 0, eCoolTimer = 0;
 
-    // 残像クラス
-    class Afterimage {
-        constructor(originalMesh) {
-            this.mesh = originalMesh.clone();
-            this.life = 0.3; this.maxLife = 0.3;
-            const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.3 });
-            this.mesh.traverse((child) => {
+        let targetPos = new THREE.Vector3();
+        let isRightMouseDown = false; // マウス状態管理
+
+        function disposeObject(obj) {
+            if (!obj) return;
+            scene.remove(obj);
+            obj.traverse((child) => {
                 if (child.isMesh) {
-                    child.material = mat;
-                    child.castShadow = false; child.receiveShadow = false;
-                }
-            });
-            scene.add(this.mesh);
-        }
-        update(dt) {
-            this.life -= dt;
-            const alpha = this.life / this.maxLife;
-            this.mesh.traverse((child) => { if (child.isMesh) child.material.opacity = 0.3 * alpha; });
-            if (this.life <= 0) {
-                scene.remove(this.mesh);
-                this.mesh.traverse((child) => { if (child.isMesh) child.material.dispose(); });
-                return false;
-            }
-            return true;
-        }
-    }
-
-    class StickmanModel {
-        constructor() {
-            this.mesh = new THREE.Group();
-            this.animTime = 0; this.isMoving = false;
-            this.mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0.1 });
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 16), this.mat);
-            head.position.y = 3.2; head.castShadow = true; this.mesh.add(head);
-            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.4, 1.2, 4, 8), this.mat);
-            body.position.y = 2.0; body.castShadow = true; this.mesh.add(body);
-            const createLimb = (px, py, pz, geom, yOff) => {
-                const joint = new THREE.Group(); joint.position.set(px, py, pz);
-                const mesh = new THREE.Mesh(geom, this.mat); mesh.position.y = yOff; mesh.castShadow = true;
-                joint.add(mesh); return joint;
-            };
-            const armGeo = new THREE.CapsuleGeometry(0.2, 1.2, 4, 8);
-            const legGeo = new THREE.CapsuleGeometry(0.25, 1.4, 4, 8);
-            this.armL = createLimb(-0.7, 2.8, 0, armGeo, -0.6); this.armR = createLimb(0.7, 2.8, 0, armGeo, -0.6);
-            this.legL = createLimb(-0.3, 1.4, 0, legGeo, -0.7); this.legR = createLimb(0.3, 1.4, 0, legGeo, -0.7);
-            this.mesh.add(this.armL); this.mesh.add(this.armR); this.mesh.add(this.legL); this.mesh.add(this.legR);
-            this.wShield = new THREE.Mesh(Assets.geometries.shield, Assets.materials.shield);
-            this.wShield.position.y = 2.0; this.wShield.visible = false;
-            this.mesh.add(this.wShield);
-        }
-        setColor(hasItemShield) {
-            if (hasItemShield) { this.mat.color.setHex(0x00ff88); this.mat.emissive.setHex(0x005522); } 
-            else { this.mat.color.setHex(0xffffff); this.mat.emissive.setHex(0x000000); }
-        }
-        setWShieldVisible(visible) { this.wShield.visible = visible; }
-        update(dt) {
-            if (!gameActive) this.isMoving = false;
-            let currentSpeed = currentPlayerSpeed;
-            if (isDashing) currentSpeed *= CONFIG.dashSpeedMultiplier;
-
-            const speedScale = currentSpeed / CONFIG.basePlayerSpeed;
-            this.animTime += dt * (this.isMoving ? 18 * speedScale : 0);
-            
-            if (this.isMoving) {
-                const currentRot = this.mesh.quaternion.clone();
-                const dir = new THREE.Vector3().subVectors(targetPos, this.mesh.position).normalize();
-                if (dir.lengthSq() > 0.001) {
-                    const targetAngle = Math.atan2(dir.x, dir.z);
-                    const targetRot = new THREE.Quaternion();
-                    targetRot.setFromAxisAngle(new THREE.Vector3(0,1,0), targetAngle);
-                    this.mesh.quaternion.slerp(targetRot, 10.0 * dt);
-                }
-            }
-
-            if (isDashing) {
-                this.mesh.children[1].rotation.x = 0.5; // 前傾
-                this.armL.rotation.x = 1.0; 
-                this.armR.rotation.x = 1.0;
-                this.legL.rotation.x = 0.5; 
-                this.legR.rotation.x = -0.5;
-                this.mesh.position.y = 0.5;
-            } else if (this.isMoving) {
-                const as = 1.0; const ls = 1.2;
-                this.armL.rotation.x = Math.sin(this.animTime) * as; this.armR.rotation.x = Math.sin(this.animTime + Math.PI) * as;
-                this.legL.rotation.x = Math.sin(this.animTime + Math.PI) * ls; this.legR.rotation.x = Math.sin(this.animTime) * ls;
-                this.mesh.position.y = Math.abs(Math.sin(this.animTime * 2)) * 0.15; 
-                this.mesh.children[1].rotation.x = 0.2;
-            } else {
-                this.armL.rotation.x = 0; this.armR.rotation.x = 0;
-                this.legL.rotation.x = 0; this.legR.rotation.x = 0;
-                this.mesh.position.y = 0; this.mesh.children[1].rotation.x = 0;
-            }
-            if (this.wShield.visible) { this.wShield.scale.setScalar(1.0 + Math.sin(clock.elapsedTime * 10) * 0.05); }
-        }
-    }
-
-    function createMap() {
-        const group = new THREE.Group();
-        const groundTex = createTexture('grass'); groundTex.repeat.set(40, 40);
-        const groundMat = new THREE.MeshStandardMaterial({ map: groundTex, roughness: 0.8 });
-        const ground = new THREE.Mesh(new THREE.PlaneGeometry(CONFIG.mapVisualSize, CONFIG.mapVisualSize), groundMat);
-        ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; group.add(ground);
-        return group;
-    }
-
-    class SkillBall {
-        constructor(speedMultiplier, type = 'normal') {
-            this.type = type;
-            if (this.type === 'black') {
-                this.radius = CONFIG.ballRadius * 3.0;
-                this.mesh = new THREE.Mesh(Assets.geometries.ball, Assets.materials.blackBall);
-                this.speedBase = CONFIG.baseBallSpeedMin * 0.8;
-            } else {
-                this.radius = CONFIG.ballRadius;
-                this.mesh = new THREE.Mesh(Assets.geometries.ball, Assets.materials.ball);
-                this.speedBase = CONFIG.baseBallSpeedMin + Math.random() * (CONFIG.baseBallSpeedMax - CONFIG.baseBallSpeedMin);
-            }
-            this.mesh.scale.set(this.radius, this.radius, this.radius);
-            this.targetY = this.radius + 1.0; this.mesh.position.y = this.targetY; this.mesh.castShadow = true;
-            const angle = Math.random() * Math.PI * 2; const dist = CONFIG.spawnDistance;
-            const sx = Math.cos(angle) * dist; const sz = Math.sin(angle) * dist;
-            this.mesh.position.set(sx, this.targetY, sz);
-            const dir = new THREE.Vector3().subVectors(player.mesh.position, this.mesh.position).normalize();
-            const lead = 0.5 + Math.min(0.5, survivalTime * 0.01); 
-            const future = player.mesh.position.clone().add(dir.multiplyScalar(currentPlayerSpeed * lead));
-            const finalDir = new THREE.Vector3().subVectors(future, this.mesh.position).normalize();
-            this.speed = this.speedBase * speedMultiplier;
-            this.velocity = finalDir.multiplyScalar(this.speed);
-            this.rotAxis = new THREE.Vector3().crossVectors(finalDir, new THREE.Vector3(0,1,0)).normalize();
-            scene.add(this.mesh);
-        }
-        update(dt) {
-            this.mesh.position.addScaledVector(this.velocity, dt);
-            this.mesh.rotateOnWorldAxis(this.rotAxis, this.speed * dt * 0.2);
-            this.mesh.position.y = this.targetY;
-            return this.mesh.position.length() < CONFIG.spawnDistance + 50;
-        }
-        checkHit(playerPos) {
-            const distSq = this.mesh.position.distanceToSquared(playerPos);
-            return distSq < (this.radius + 0.8) ** 2;
-        }
-    }
-
-    function init() {
-        try {
-            const loader = document.getElementById('loading'); if (loader) loader.style.display = 'none';
-            soundManager.init();
-            
-            scene = new THREE.Scene(); scene.background = new THREE.Color(0x223344); 
-            scene.fog = new THREE.Fog(0x223344, 80, 250);
-            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-            renderer = new THREE.WebGLRenderer({ antialias: true }); 
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            document.body.appendChild(renderer.domElement);
-            
-            const amLight = new THREE.AmbientLight(0xffffff, 1.0); scene.add(amLight);
-            const dirLight = new THREE.DirectionalLight(0xffffff, 1.0); dirLight.position.set(-50, 100, -50);
-            dirLight.castShadow = true; 
-            dirLight.shadow.mapSize.set(1024, 1024); 
-            dirLight.shadow.camera.left = -CONFIG.mapLimit; dirLight.shadow.camera.right = CONFIG.mapLimit;
-            dirLight.shadow.camera.top = CONFIG.mapLimit; dirLight.shadow.camera.bottom = -CONFIG.mapLimit;
-            scene.add(dirLight);
-
-            initAssets();
-
-            mapGroup = createMap(); scene.add(mapGroup);
-            player = new StickmanModel(); scene.add(player.mesh);
-            const indGeo = new THREE.RingGeometry(1.0, 1.5, 32);
-            const indMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0, side: THREE.DoubleSide });
-            moveIndicator = new THREE.Mesh(indGeo, indMat);
-            moveIndicator.rotation.x = -Math.PI/2; moveIndicator.position.y = 0.5; scene.add(moveIndicator);
-            
-            clock = new THREE.Clock(); raycaster = new THREE.Raycaster(); mouse = new THREE.Vector2();
-            window.addEventListener('resize', onResize); window.addEventListener('contextmenu', onRightClick);
-            
-            // ★修正: 右クリックでの移動をサポート
-            document.addEventListener('mousedown', onMouseDown);
-            document.addEventListener('mouseup', onMouseUp);
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('keydown', onKeyDown);
-
-            document.getElementById('start-btn').addEventListener('click', startGame);
-            document.getElementById('retry-btn').addEventListener('click', retryGame);
-            document.getElementById('menu-btn').addEventListener('click', goToMenu);
-            document.getElementById('mute-btn').addEventListener('click', toggleMute);
-            
-            // ランキング登録
-            document.getElementById('submit-score-btn').addEventListener('click', async () => {
-                if(!db) { alert("データベースが設定されていません"); return; }
-                const nameInput = document.getElementById('player-name-input');
-                const name = nameInput.value.trim() || "名無し";
-                try {
-                    await addDoc(collection(db, "scores"), {
-                        name: name, time: parseFloat(survivalTime.toFixed(2)), date: new Date()
-                    });
-                    nameInput.style.display = 'none';
-                    document.getElementById('submit-score-btn').style.display = 'none';
-                    showRanking();
-                } catch(e) { console.error(e); alert("登録エラー"); }
-            });
-
-            const slider = document.getElementById('volume-slider');
-            slider.addEventListener('input', (e) => {
-                soundManager.setVolume(e.target.value / 100);
-            });
-
-            document.addEventListener('click', () => {
-                if (!gameActive && !soundManager.isMuted) {
-                    soundManager.switchBGM('menu');
-                }
-            }, { once: true });
-
-            gameActive = false; animate();
-        } catch(e) { showError("Init failed: " + e.message); }
-    }
-
-    async function showRanking() {
-        const el = document.getElementById('ranking-section');
-        el.innerHTML = "読み込み中...";
-        if (!db) { el.innerHTML = "データベース未接続"; return; }
-        try {
-            const q = query(collection(db, "scores"), orderBy("time", "desc"), limit(30));
-            const querySnapshot = await getDocs(q);
-            el.innerHTML = "";
-            let rank = 1;
-            querySnapshot.forEach((doc) => {
-                const d = doc.data();
-                const row = document.createElement('div');
-                row.className = 'ranking-row';
-                row.innerHTML = `<span>${rank}. <span class="rank-name">${d.name}</span></span><span>${d.time.toFixed(2)}s</span>`;
-                el.appendChild(row);
-                rank++;
-            });
-        } catch(e) {
-            el.innerHTML = "取得エラー"; console.error(e);
-        }
-    }
-
-    function startGame() {
-        document.getElementById('start-screen').style.display = 'none';
-        resetGameState(); gameActive = true; clock.start();
-        soundManager.play('start'); soundManager.switchBGM('bgm');
-    }
-    function retryGame() {
-        document.getElementById('result-overlay').style.display = 'none';
-        resetGameState(); gameActive = true; clock.start();
-        soundManager.play('start'); soundManager.switchBGM('bgm');
-    }
-    function goToMenu() {
-        document.getElementById('result-overlay').style.display = 'none';
-        document.getElementById('start-screen').style.display = 'flex';
-        resetGameState(); gameActive = false; soundManager.switchBGM('menu');
-    }
-    function toggleMute() {
-        const isMuted = soundManager.toggleMute();
-        const btn = document.getElementById('mute-btn');
-        if (isMuted) { btn.innerText = "🔇 音OFF"; btn.classList.add('muted'); } 
-        else { btn.innerText = "🔊 音ON"; btn.classList.remove('muted'); }
-    }
-
-    function resetGameState() {
-        survivalTime = 0; spawnCooldown = 0;
-        speedItemCooldown = CONFIG.speedItemInterval; shieldItemCooldown = CONFIG.shieldItemInterval; 
-        skills.forEach(s => disposeObject(s.mesh)); skills = [];
-        items.forEach(i => i.remove()); items = [];
-        lightnings.forEach(l => disposeObject(l.mesh)); lightnings = [];
-        afterimages.forEach(a => disposeObject(a.mesh)); afterimages = [];
-        
-        player.mesh.position.set(0, 0, 0); targetPos.set(0, 0, 0);
-        player.isMoving = false; moveIndicator.material.opacity = 0;
-        player.mesh.rotation.set(0,0,0);
-        currentPlayerSpeed = CONFIG.basePlayerSpeed;
-        
-        itemShieldActive = false; wSkillShieldActive = false; wSkillTimer = 0;
-        isDashing = false; dashTimer = 0;
-        player.setColor(false); player.setWShieldVisible(false);
-        updateSpeedUI(); updateShieldUI();
-
-        qUnlocked = false; wUnlocked = false; eUnlocked = false;
-        qCoolTimer = 0; wCoolTimer = 0; eCoolTimer = 0;
-        updateSkillUI();
-    }
-
-    function setShield(active) {
-        hasShield = active; player.setColor(active);
-        document.getElementById('shield-display').style.display = active ? 'block' : 'none';
-        if (active) soundManager.play('shield');
-    }
-    function updateSpeedUI() {
-        const percent = Math.round((currentPlayerSpeed / CONFIG.basePlayerSpeed) * 100);
-        document.getElementById('speed-display').innerText = `スピード: ${percent}%`;
-    }
-    function updateShieldUI() {
-        const el = document.getElementById('shield-display');
-        if (itemShieldActive) { el.style.display = 'block'; el.innerText = "🛡️ ガード中 🛡️"; } else { el.style.display = 'none'; }
-    }
-    function updateSkillUI() {
-        const qEl = document.getElementById('skill-q');
-        if (!qUnlocked) { qEl.className = 'skill-box cooldown'; qEl.innerText = `Q: ${(Math.max(0, CONFIG.skillUnlockTimeQ - survivalTime)).toFixed(0)}秒後解禁`; }
-        else if (qCoolTimer > 0) { qEl.className = 'skill-box cooldown'; qEl.innerText = `Q: ${qCoolTimer.toFixed(1)}`; }
-        else { qEl.className = 'skill-box ready'; qEl.innerText = "Q: READY"; }
-
-        const wEl = document.getElementById('skill-w');
-        if (!wUnlocked) { wEl.className = 'skill-box cooldown'; wEl.innerText = `W: ${(Math.max(0, CONFIG.skillUnlockTimeW - survivalTime)).toFixed(0)}秒後解禁`; }
-        else if (wSkillShieldActive) { wEl.className = 'skill-box active'; wEl.innerText = `W: ACTIVE`; }
-        else if (wCoolTimer > 0) { wEl.className = 'skill-box cooldown'; wEl.innerText = `W: ${wCoolTimer.toFixed(1)}`; }
-        else { wEl.className = 'skill-box ready'; wEl.innerText = "W: READY"; }
-
-        const eEl = document.getElementById('skill-e');
-        if (!eUnlocked) { eEl.className = 'skill-box cooldown'; eEl.innerText = `E: ${(Math.max(0, CONFIG.skillUnlockTimeE - survivalTime)).toFixed(0)}秒後解禁`; }
-        else if (isDashing) { eEl.className = 'skill-box active'; eEl.innerText = `E: DASHING`; }
-        else if (eCoolTimer > 0) { eEl.className = 'skill-box cooldown'; eEl.innerText = `E: ${eCoolTimer.toFixed(1)}`; }
-        else { eEl.className = 'skill-box ninja-ready'; eEl.innerText = "E: READY"; }
-    }
-
-    function updateCamera() {
-        if(!player) return;
-        const targetX = player.mesh.position.x; const targetZ = player.mesh.position.z + CONFIG.cameraOffsetZ;
-        camera.position.x += (targetX - camera.position.x) * 0.1;
-        camera.position.z += (targetZ - camera.position.z) * 0.1;
-        camera.position.y = CONFIG.cameraHeight;
-        camera.lookAt(camera.position.x, 0, camera.position.z - CONFIG.cameraOffsetZ);
-    }
-
-    function onKeyDown(e) {
-        if (!gameActive) return;
-        if (e.key === 's' || e.key === 'S') {
-            if (!isDashing) {
-                targetPos.copy(player.mesh.position); player.isMoving = false; moveIndicator.material.opacity = 0;
-            }
-        }
-        if ((e.key === 'q' || e.key === 'Q') && qUnlocked && qCoolTimer <= 0) {
-            fireLightning(); qCoolTimer = CONFIG.qCooldown;
-        }
-        if ((e.key === 'w' || e.key === 'W') && wUnlocked && wCoolTimer <= 0 && !wSkillShieldActive) {
-            activateWSkill();
-        }
-        if ((e.key === 'e' || e.key === 'E') && eUnlocked && eCoolTimer <= 0 && !isDashing) {
-            activateESkill();
-        }
-    }
-
-    function fireLightning() {
-        const dir = new THREE.Vector3();
-        if (player.isMoving) dir.subVectors(targetPos, player.mesh.position);
-        else { const v = new THREE.Vector3(0,0,1); v.applyQuaternion(player.mesh.quaternion); dir.copy(v); }
-        if (dir.lengthSq() === 0) dir.set(0, 0, -1); 
-        lightnings.push(new LightningShot(player.mesh.position, dir));
-        soundManager.play('skill'); 
-    }
-
-    function activateWSkill() {
-        wSkillShieldActive = true; wSkillTimer = CONFIG.wDuration;
-        player.setWShieldVisible(true); soundManager.play('shield');
-    }
-
-    function activateESkill() {
-        isDashing = true; dashTimer = CONFIG.eDuration;
-        eCoolTimer = CONFIG.eCooldown;
-        let dashDir = new THREE.Vector3();
-        if (player.isMoving) {
-             dashDir.subVectors(targetPos, player.mesh.position).normalize();
-        } else {
-             const v = new THREE.Vector3(0,0,1); v.applyQuaternion(player.mesh.quaternion); dashDir.copy(v);
-        }
-        const dashDist = CONFIG.basePlayerSpeed * CONFIG.dashSpeedMultiplier * CONFIG.eDuration;
-        targetPos.copy(player.mesh.position).add(dashDir.multiplyScalar(dashDist));
-        targetPos.x = Math.max(-CONFIG.mapLimit, Math.min(CONFIG.mapLimit, targetPos.x));
-        targetPos.z = Math.max(-CONFIG.mapLimit, Math.min(CONFIG.mapLimit, targetPos.z));
-        player.isMoving = true; 
-        soundManager.play('shield'); 
-    }
-
-    // ★新規: 共通ターゲット更新
-    function updateMoveTarget(clientX, clientY) {
-        if (!gameActive || isDashing) return;
-
-        mouse.x = (clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(clientY / window.innerHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, camera);
-        const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-        const intersect = new THREE.Vector3();
-        raycaster.ray.intersectPlane(plane, intersect);
-
-        if (intersect) {
-            targetPos.copy(intersect);
-            moveIndicator.position.copy(targetPos);
-            moveIndicator.position.y = 0.5;
-            moveIndicator.material.opacity = 1;
-            moveIndicator.scale.set(1, 1, 1);
-        }
-    }
-
-    function onRightClick(e) {
-        // e.preventDefault() は init() で処理済みだが念のため
-        e.preventDefault();
-        // ここでの処理は不要（mousedownで処理する）
-    }
-
-    // ★新規: マウスイベントハンドラ
-    function onMouseDown(e) {
-        if (e.button === 2) { // 右クリック
-            isRightMouseDown = true;
-            updateMoveTarget(e.clientX, e.clientY);
-        }
-    }
-
-    function onMouseUp(e) {
-        if (e.button === 2) {
-            isRightMouseDown = false;
-        }
-    }
-
-    function onMouseMove(e) {
-        if (isRightMouseDown) {
-            updateMoveTarget(e.clientX, e.clientY);
-        }
-    }
-
-    function manageSpawns(dt) {
-        spawnCooldown -= dt;
-        if (spawnCooldown <= 0) {
-            const speedMult = 1.0 + Math.min(0.5, survivalTime * 0.01);
-            const baseInterval = Math.max(0.1, 0.8 - (survivalTime * 0.015));
-            let count = 1;
-            if (survivalTime > 30 && Math.random() < 0.3) count = 2;
-            if (survivalTime > 60 && Math.random() < 0.5) count = 3;
-            for(let i=0; i<count; i++) {
-                let type = 'normal';
-                if (survivalTime > 100 && Math.random() < 0.15) type = 'black'; 
-                skills.push(new SkillBall(speedMult, type));
-            }
-            spawnCooldown = baseInterval;
-        }
-        speedItemCooldown -= dt;
-        if (speedItemCooldown <= 0) { items.push(new SpeedItem()); speedItemCooldown = CONFIG.speedItemInterval; }
-        shieldItemCooldown -= dt; 
-        if (shieldItemCooldown <= 0) { items.push(new ShieldItem()); shieldItemCooldown = CONFIG.shieldItemInterval; }
-    }
-
-    const _pPos = new THREE.Vector3();
-    const _dir = new THREE.Vector3();
-
-    function animate() {
-        requestAnimationFrame(animate);
-        let delta = clock.getDelta(); if (!delta || delta > 0.1 || isNaN(delta)) delta = 0.016; 
-        const time = clock.getElapsedTime();
-        
-        if (gameActive) {
-            survivalTime += delta; manageSpawns(delta);
-            if (!qUnlocked && survivalTime >= CONFIG.skillUnlockTimeQ) { qUnlocked = true; soundManager.play('shield'); }
-            if (!wUnlocked && survivalTime >= CONFIG.skillUnlockTimeW) { wUnlocked = true; soundManager.play('shield'); }
-            if (!eUnlocked && survivalTime >= CONFIG.skillUnlockTimeE) { eUnlocked = true; soundManager.play('shield'); }
-            if (qCoolTimer > 0) qCoolTimer -= delta; if (wCoolTimer > 0) wCoolTimer -= delta;
-            if (wSkillShieldActive) {
-                wSkillTimer -= delta;
-                if (wSkillTimer <= 0) { wSkillShieldActive = false; player.setWShieldVisible(false); wCoolTimer = CONFIG.wCooldown; }
-            }
-            if (isDashing) {
-                dashTimer -= delta;
-                // 残像生成 (頻度調整)
-                if (Math.random() < 0.3) afterimages.push(new Afterimage(player.mesh));
-                if (dashTimer <= 0) { isDashing = false; eCoolTimer = CONFIG.eCooldown; }
-            }
-            if (eCoolTimer > 0) eCoolTimer -= delta;
-
-            updateSkillUI();
-
-            const dist = player.mesh.position.distanceTo(targetPos);
-            if (dist > 0.5) {
-                player.isMoving = true;
-                _dir.subVectors(targetPos, player.mesh.position).normalize();
-                let speed = currentPlayerSpeed;
-                if (isDashing) speed *= CONFIG.dashSpeedMultiplier;
-                const moveDist = speed * delta;
-                if (moveDist >= dist) player.mesh.position.copy(targetPos);
-                else player.mesh.position.add(_dir.multiplyScalar(moveDist));
-            } else { 
-                player.isMoving = false; 
-                if (isDashing) { isDashing = false; eCoolTimer = CONFIG.eCooldown; }
-            }
-            if (moveIndicator.material.opacity > 0) { moveIndicator.material.opacity -= delta * 3; moveIndicator.scale.multiplyScalar(0.9); }
-
-            // 電撃処理
-            for (let i = lightnings.length - 1; i >= 0; i--) {
-                const bolt = lightnings[i]; const alive = bolt.update(delta);
-                if (!alive) { disposeObject(bolt.mesh); lightnings.splice(i, 1); continue; }
-                for (let j = skills.length - 1; j >= 0; j--) {
-                    const enemy = skills[j];
-                    const distSq = bolt.mesh.position.distanceToSquared(enemy.mesh.position);
-                    if (distSq < (2.0 + enemy.radius) ** 2) { 
-                        if (enemy.type === 'black') { /* 無効 */ } else { disposeObject(enemy.mesh); skills.splice(j, 1); }
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) {
+                        if (Array.isArray(child.material)) child.material.forEach(m => m.dispose()); else child.material.dispose();
                     }
                 }
-            }
+            });
+        }
 
-            // 残像処理
-            for (let i = afterimages.length - 1; i >= 0; i--) {
-                const af = afterimages[i];
-                if (!af.update(delta)) afterimages.splice(i, 1);
-            }
+        const Assets = { geometries: {}, materials: {} };
+        function initAssets() {
+            const canvas = document.createElement('canvas'); canvas.width = 64; canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(32, 32, 5, 32, 32, 32);
+            grad.addColorStop(0, '#ffadd6'); grad.addColorStop(1, '#ff55a3');
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, 64, 64);
+            const tex = new THREE.CanvasTexture(canvas);
+            Assets.geometries.ball = new THREE.SphereGeometry(1, 24, 24);
+            Assets.materials.ball = new THREE.MeshStandardMaterial({ map: tex, emissive: 0xff55a3, emissiveIntensity: 0.3, roughness: 0.4 });
+            Assets.materials.blackBall = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x000000, roughness: 0.1, metalness: 0.9 });
 
-            for (let i = skills.length - 1; i >= 0; i--) {
-                const s = skills[i]; const alive = s.update(delta);
-                _pPos.copy(player.mesh.position); _pPos.y = s.mesh.position.y; 
-                if (s.checkHit(_pPos)) {
-                    if (isDashing) {
-                        // 無傷
-                    } else if (wSkillShieldActive) {
-                        disposeObject(s.mesh); skills.splice(i, 1); soundManager.play('break');
-                    } else if (itemShieldActive) {
-                        itemShieldActive = false; player.setColor(false); updateShieldUI();
-                        disposeObject(s.mesh); skills.splice(i, 1); soundManager.play('break');
-                    } else { endGame(); return; }
-                } else if (!alive) { disposeObject(s.mesh); skills.splice(i, 1); }
+            // ★修正: 靴の形状 (スニーカー風に詳細化)
+            const shoeShape = new THREE.Shape();
+            const s = 1.0;
+            shoeShape.moveTo(-0.6 * s, 0); // かかと下
+            shoeShape.lineTo(0.6 * s, 0);  // つま先下
+            shoeShape.quadraticCurveTo(0.9 * s, 0, 0.9 * s, 0.3 * s); // つま先
+            shoeShape.quadraticCurveTo(0.8 * s, 0.5 * s, 0.4 * s, 0.6 * s); // 甲
+            shoeShape.lineTo(-0.1 * s, 0.8 * s); // タン上
+            shoeShape.lineTo(-0.6 * s, 0.8 * s); // かかと上
+            shoeShape.lineTo(-0.6 * s, 0); // 閉じる
+
+            Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.5, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05 });
+            Assets.geometries.shoe.center();
+            // ★修正: 上下逆さまにならないように回転をリセット
+            // ExtrudeはZ方向に厚みが出る。ShapeはXY平面。
+            // これを地面に置くとき（Yアップ）、XZ平面に寝かせたいならX軸-90度回転。
+            // 立たせたい（側面を見せたい）なら回転なしでOKだが、アイテムとして回すなら立っていたほうが見栄えが良い。
+            // ここでは「立っている」状態をデフォルトにする。
+
+            Assets.materials.shoe = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x0088ff, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.5 });
+
+            // 盾アイテム
+            const shieldShape = new THREE.Shape();
+            shieldShape.moveTo(-0.5, 0.6); shieldShape.lineTo(0.5, 0.6); shieldShape.lineTo(0.5, 0.2);
+            shieldShape.quadraticCurveTo(0.5, -0.6, 0, -0.8); shieldShape.quadraticCurveTo(-0.5, -0.6, -0.5, 0.2); shieldShape.lineTo(-0.5, 0.6);
+            Assets.geometries.shieldItem = new THREE.ExtrudeGeometry(shieldShape, { depth: 0.2, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.05 });
+            Assets.geometries.shieldItem.center();
+            Assets.materials.shieldItem = new THREE.MeshStandardMaterial({ color: 0x00ff88, emissive: 0x00cc66, emissiveIntensity: 0.8, roughness: 0.3, metalness: 0.7 });
+
+            Assets.geometries.lightning = new THREE.IcosahedronGeometry(1, 0);
+            Assets.materials.lightning = new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 2.0, roughness: 0.1, metalness: 0.5, wireframe: false });
+
+            Assets.geometries.shield = new THREE.SphereGeometry(2.5, 24, 24);
+            Assets.materials.shield = new THREE.MeshBasicMaterial({ color: 0x00aaff, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
+        }
+
+        function createTexture(type) {
+            const size = 512; const canvas = document.createElement('canvas');
+            canvas.width = size; canvas.height = size; const ctx = canvas.getContext('2d');
+            if (type === 'grass') {
+                ctx.fillStyle = '#2a5a2a'; ctx.fillRect(0, 0, size, size);
+                for (let i = 0; i < 5000; i++) { ctx.fillStyle = Math.random() > 0.5 ? '#3a6a3a' : '#1a4a1a'; ctx.fillRect(Math.random() * size, Math.random() * size, 3, 3); }
             }
-            
-            for (let i = items.length - 1; i >= 0; i--) {
-                const item = items[i]; item.update(delta, time);
-                _pPos.copy(player.mesh.position);
-                const distSq = (_pPos.x - item.mesh.position.x)**2 + (_pPos.z - item.mesh.position.z)**2;
-                if (distSq < 6.25) {
-                    if (item.type === 'speed') {
-                        currentPlayerSpeed += CONFIG.speedBoostAmount; updateSpeedUI();
-                        item.remove(); items.splice(i, 1); soundManager.play('item');
-                    } else if (item.type === 'shield') {
-                        if (!itemShieldActive) { 
-                            itemShieldActive = true; player.setColor(true); updateShieldUI();
-                            item.remove(); items.splice(i, 1); soundManager.play('shield');
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.colorSpace = THREE.SRGBColorSpace;
+            return tex;
+        }
+        const TEXTURES = { grass: createTexture('grass') };
+
+        class GameItem {
+            constructor() {
+                this.mesh = new THREE.Group();
+                this.active = true;
+                const range = CONFIG.mapLimit - 10;
+                const x = (Math.random() - 0.5) * 2 * range;
+                const z = (Math.random() - 0.5) * 2 * range;
+                this.mesh.position.set(x, 2.5, z);
+                this.baseY = 2.5; this.floatOffset = Math.random() * 100;
+                scene.add(this.mesh);
+            }
+            update(dt, time) { }
+            remove() { scene.remove(this.mesh); this.active = false; }
+        }
+
+        // 靴アイテム
+        class SpeedItem extends GameItem {
+            constructor() {
+                super(); this.type = 'speed';
+                const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
+                shoeMesh.scale.set(1.5, 1.5, 1.5);
+
+                // ★修正: 正しく立つように回転リセット＆調整
+                // ShapeをXY平面に描いたので、そのままではZ方向に厚みがある板。
+                // これをY軸回転させるなら、そのままでOK。ソールはY=0付近。
+                shoeMesh.rotation.set(0, 0, 0);
+                // もし上下逆なら Math.PI をX軸にかけるが、座標系的にこれで正立のはず。
+
+                this.rotateGroup = new THREE.Group();
+                this.rotateGroup.add(shoeMesh);
+                this.mesh.add(this.rotateGroup);
+            }
+            update(dt, time) {
+                this.rotateGroup.rotation.y += dt * 2.0;
+                this.mesh.position.y = this.baseY + Math.sin(time * 3 + this.floatOffset) * 0.5;
+            }
+        }
+
+        // 盾アイテム
+        class ShieldItem extends GameItem {
+            constructor() {
+                super(); this.type = 'shield';
+                const shieldMesh = new THREE.Mesh(Assets.geometries.shieldItem, Assets.materials.shieldItem);
+                shieldMesh.scale.set(1.5, 1.5, 1.5);
+                this.rotateGroup = new THREE.Group(); this.rotateGroup.add(shieldMesh);
+                this.mesh.add(this.rotateGroup);
+            }
+            update(dt, time) {
+                this.rotateGroup.rotation.y += dt * 1.5;
+                this.mesh.position.y = this.baseY + Math.sin(time * 2 + this.floatOffset) * 0.5;
+            }
+        }
+
+        class LightningShot {
+            constructor(pos, dir) {
+                this.mesh = new THREE.Mesh(Assets.geometries.lightning, Assets.materials.lightning);
+                this.mesh.scale.set(4.0, 4.0, 4.0);
+                this.mesh.position.copy(pos); this.mesh.position.y = 2.5;
+                this.velocity = dir.clone().normalize().multiplyScalar(60);
+                this.life = 3.0;
+                scene.add(this.mesh);
+            }
+            update(dt) {
+                this.mesh.position.addScaledVector(this.velocity, dt);
+                this.mesh.rotation.x += dt * 10; this.mesh.rotation.y += dt * 10;
+                this.life -= dt;
+                return this.life > 0;
+            }
+        }
+
+        // 残像クラス
+        class Afterimage {
+            constructor(originalMesh) {
+                this.mesh = originalMesh.clone();
+                this.life = 0.3; this.maxLife = 0.3;
+                const mat = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.3 });
+                this.mesh.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material = mat;
+                        child.castShadow = false; child.receiveShadow = false;
+                    }
+                });
+                scene.add(this.mesh);
+            }
+            update(dt) {
+                this.life -= dt;
+                const alpha = this.life / this.maxLife;
+                this.mesh.traverse((child) => { if (child.isMesh) child.material.opacity = 0.3 * alpha; });
+                if (this.life <= 0) {
+                    scene.remove(this.mesh);
+                    this.mesh.traverse((child) => { if (child.isMesh) child.material.dispose(); });
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        class StickmanModel {
+            constructor() {
+                this.mesh = new THREE.Group();
+                this.animTime = 0; this.isMoving = false;
+                this.mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0.1 });
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 16), this.mat);
+                head.position.y = 3.2; head.castShadow = true; this.mesh.add(head);
+                const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.4, 1.2, 4, 8), this.mat);
+                body.position.y = 2.0; body.castShadow = true; this.mesh.add(body);
+                const createLimb = (px, py, pz, geom, yOff) => {
+                    const joint = new THREE.Group(); joint.position.set(px, py, pz);
+                    const mesh = new THREE.Mesh(geom, this.mat); mesh.position.y = yOff; mesh.castShadow = true;
+                    joint.add(mesh); return joint;
+                };
+                const armGeo = new THREE.CapsuleGeometry(0.2, 1.2, 4, 8);
+                const legGeo = new THREE.CapsuleGeometry(0.25, 1.4, 4, 8);
+                this.armL = createLimb(-0.7, 2.8, 0, armGeo, -0.6); this.armR = createLimb(0.7, 2.8, 0, armGeo, -0.6);
+                this.legL = createLimb(-0.3, 1.4, 0, legGeo, -0.7); this.legR = createLimb(0.3, 1.4, 0, legGeo, -0.7);
+                this.mesh.add(this.armL); this.mesh.add(this.armR); this.mesh.add(this.legL); this.mesh.add(this.legR);
+                this.wShield = new THREE.Mesh(Assets.geometries.shield, Assets.materials.shield);
+                this.wShield.position.y = 2.0; this.wShield.visible = false;
+                this.mesh.add(this.wShield);
+            }
+            setColor(hasItemShield) {
+                if (hasItemShield) { this.mat.color.setHex(0x00ff88); this.mat.emissive.setHex(0x005522); }
+                else { this.mat.color.setHex(0xffffff); this.mat.emissive.setHex(0x000000); }
+            }
+            setWShieldVisible(visible) { this.wShield.visible = visible; }
+            update(dt) {
+                if (!gameActive) this.isMoving = false;
+                let currentSpeed = currentPlayerSpeed;
+                if (isDashing) currentSpeed *= CONFIG.dashSpeedMultiplier;
+
+                const speedScale = currentSpeed / CONFIG.basePlayerSpeed;
+                this.animTime += dt * (this.isMoving ? 18 * speedScale : 0);
+
+                if (this.isMoving) {
+                    const currentRot = this.mesh.quaternion.clone();
+                    const dir = new THREE.Vector3().subVectors(targetPos, this.mesh.position).normalize();
+                    if (dir.lengthSq() > 0.001) {
+                        const targetAngle = Math.atan2(dir.x, dir.z);
+                        const targetRot = new THREE.Quaternion();
+                        targetRot.setFromAxisAngle(new THREE.Vector3(0, 1, 0), targetAngle);
+                        this.mesh.quaternion.slerp(targetRot, 10.0 * dt);
+                    }
+                }
+
+                if (isDashing) {
+                    this.mesh.children[1].rotation.x = 0.5; // 前傾
+                    this.armL.rotation.x = 1.0;
+                    this.armR.rotation.x = 1.0;
+                    this.legL.rotation.x = 0.5;
+                    this.legR.rotation.x = -0.5;
+                    this.mesh.position.y = 0.5;
+                } else if (this.isMoving) {
+                    const as = 1.0; const ls = 1.2;
+                    this.armL.rotation.x = Math.sin(this.animTime) * as; this.armR.rotation.x = Math.sin(this.animTime + Math.PI) * as;
+                    this.legL.rotation.x = Math.sin(this.animTime + Math.PI) * ls; this.legR.rotation.x = Math.sin(this.animTime) * ls;
+                    this.mesh.position.y = Math.abs(Math.sin(this.animTime * 2)) * 0.15;
+                    this.mesh.children[1].rotation.x = 0.2;
+                } else {
+                    this.armL.rotation.x = 0; this.armR.rotation.x = 0;
+                    this.legL.rotation.x = 0; this.legR.rotation.x = 0;
+                    this.mesh.position.y = 0; this.mesh.children[1].rotation.x = 0;
+                }
+                if (this.wShield.visible) { this.wShield.scale.setScalar(1.0 + Math.sin(clock.elapsedTime * 10) * 0.05); }
+            }
+        }
+
+        function createMap() {
+            const group = new THREE.Group();
+            const groundTex = createTexture('grass'); groundTex.repeat.set(40, 40);
+            const groundMat = new THREE.MeshStandardMaterial({ map: groundTex, roughness: 0.8 });
+            const ground = new THREE.Mesh(new THREE.PlaneGeometry(CONFIG.mapVisualSize, CONFIG.mapVisualSize), groundMat);
+            ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; group.add(ground);
+            return group;
+        }
+
+        class SkillBall {
+            constructor(speedMultiplier, type = 'normal') {
+                this.type = type;
+                if (this.type === 'black') {
+                    this.radius = CONFIG.ballRadius * 3.0;
+                    this.mesh = new THREE.Mesh(Assets.geometries.ball, Assets.materials.blackBall);
+                    this.speedBase = CONFIG.baseBallSpeedMin * 0.8;
+                } else {
+                    this.radius = CONFIG.ballRadius;
+                    this.mesh = new THREE.Mesh(Assets.geometries.ball, Assets.materials.ball);
+                    this.speedBase = CONFIG.baseBallSpeedMin + Math.random() * (CONFIG.baseBallSpeedMax - CONFIG.baseBallSpeedMin);
+                }
+                this.mesh.scale.set(this.radius, this.radius, this.radius);
+                this.targetY = this.radius + 1.0; this.mesh.position.y = this.targetY; this.mesh.castShadow = true;
+                const angle = Math.random() * Math.PI * 2; const dist = CONFIG.spawnDistance;
+                const sx = Math.cos(angle) * dist; const sz = Math.sin(angle) * dist;
+                this.mesh.position.set(sx, this.targetY, sz);
+                const dir = new THREE.Vector3().subVectors(player.mesh.position, this.mesh.position).normalize();
+                const lead = 0.5 + Math.min(0.5, survivalTime * 0.01);
+                const future = player.mesh.position.clone().add(dir.multiplyScalar(currentPlayerSpeed * lead));
+                const finalDir = new THREE.Vector3().subVectors(future, this.mesh.position).normalize();
+                this.speed = this.speedBase * speedMultiplier;
+                this.velocity = finalDir.multiplyScalar(this.speed);
+                this.rotAxis = new THREE.Vector3().crossVectors(finalDir, new THREE.Vector3(0, 1, 0)).normalize();
+                scene.add(this.mesh);
+            }
+            update(dt) {
+                this.mesh.position.addScaledVector(this.velocity, dt);
+                this.mesh.rotateOnWorldAxis(this.rotAxis, this.speed * dt * 0.2);
+                this.mesh.position.y = this.targetY;
+                return this.mesh.position.length() < CONFIG.spawnDistance + 50;
+            }
+            checkHit(playerPos) {
+                const distSq = this.mesh.position.distanceToSquared(playerPos);
+                return distSq < (this.radius + 0.8) ** 2;
+            }
+        }
+
+        function init() {
+            try {
+                const loader = document.getElementById('loading'); if (loader) loader.style.display = 'none';
+                soundManager.init();
+
+                scene = new THREE.Scene(); scene.background = new THREE.Color(0x223344);
+                scene.fog = new THREE.Fog(0x223344, 80, 250);
+                camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                document.body.appendChild(renderer.domElement);
+
+                const amLight = new THREE.AmbientLight(0xffffff, 1.0); scene.add(amLight);
+                const dirLight = new THREE.DirectionalLight(0xffffff, 1.0); dirLight.position.set(-50, 100, -50);
+                dirLight.castShadow = true;
+                dirLight.shadow.mapSize.set(1024, 1024);
+                dirLight.shadow.camera.left = -CONFIG.mapLimit; dirLight.shadow.camera.right = CONFIG.mapLimit;
+                dirLight.shadow.camera.top = CONFIG.mapLimit; dirLight.shadow.camera.bottom = -CONFIG.mapLimit;
+                scene.add(dirLight);
+
+                initAssets();
+
+                mapGroup = createMap(); scene.add(mapGroup);
+                player = new StickmanModel(); scene.add(player.mesh);
+                const indGeo = new THREE.RingGeometry(1.0, 1.5, 32);
+                const indMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0, side: THREE.DoubleSide });
+                moveIndicator = new THREE.Mesh(indGeo, indMat);
+                moveIndicator.rotation.x = -Math.PI / 2; moveIndicator.position.y = 0.5; scene.add(moveIndicator);
+
+                clock = new THREE.Clock(); raycaster = new THREE.Raycaster(); mouse = new THREE.Vector2();
+                window.addEventListener('resize', onResize); window.addEventListener('contextmenu', onRightClick);
+
+                // ★修正: 右クリックでの移動をサポート
+                document.addEventListener('mousedown', onMouseDown);
+                document.addEventListener('mouseup', onMouseUp);
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('keydown', onKeyDown);
+
+                document.getElementById('start-btn').addEventListener('click', startGame);
+                document.getElementById('retry-btn').addEventListener('click', retryGame);
+                document.getElementById('menu-btn').addEventListener('click', goToMenu);
+                document.getElementById('mute-btn').addEventListener('click', toggleMute);
+
+                // ランキング登録
+                document.getElementById('submit-score-btn').addEventListener('click', async () => {
+                    if (!db) { alert("データベースが設定されていません"); return; }
+                    const nameInput = document.getElementById('player-name-input');
+                    const name = nameInput.value.trim() || "名無し";
+                    try {
+                        await addDoc(collection(db, "scores"), {
+                            name: name, time: parseFloat(survivalTime.toFixed(2)), date: new Date()
+                        });
+                        nameInput.style.display = 'none';
+                        document.getElementById('submit-score-btn').style.display = 'none';
+                        showRanking();
+                    } catch (e) { console.error(e); alert("登録エラー"); }
+                });
+
+                const slider = document.getElementById('volume-slider');
+                slider.addEventListener('input', (e) => {
+                    soundManager.setVolume(e.target.value / 100);
+                });
+
+                document.addEventListener('click', () => {
+                    if (!gameActive && !soundManager.isMuted) {
+                        soundManager.switchBGM('menu');
+                    }
+                }, { once: true });
+
+                gameActive = false; animate();
+            } catch (e) { showError("Init failed: " + e.message); }
+        }
+
+        async function showRanking() {
+            const el = document.getElementById('ranking-section');
+            el.innerHTML = "読み込み中...";
+            if (!db) { el.innerHTML = "データベース未接続"; return; }
+            try {
+                const q = query(collection(db, "scores"), orderBy("time", "desc"), limit(30));
+                const querySnapshot = await getDocs(q);
+                el.innerHTML = "";
+                let rank = 1;
+                querySnapshot.forEach((doc) => {
+                    const d = doc.data();
+                    const row = document.createElement('div');
+                    row.className = 'ranking-row';
+                    row.innerHTML = `<span>${rank}. <span class="rank-name">${d.name}</span></span><span>${d.time.toFixed(2)}s</span>`;
+                    el.appendChild(row);
+                    rank++;
+                });
+            } catch (e) {
+                el.innerHTML = "取得エラー"; console.error(e);
+            }
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            resetGameState(); gameActive = true; clock.start();
+            soundManager.play('start'); soundManager.switchBGM('bgm');
+        }
+        function retryGame() {
+            document.getElementById('result-overlay').style.display = 'none';
+            resetGameState(); gameActive = true; clock.start();
+            soundManager.play('start'); soundManager.switchBGM('bgm');
+        }
+        function goToMenu() {
+            document.getElementById('result-overlay').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+            resetGameState(); gameActive = false; soundManager.switchBGM('menu');
+        }
+        function toggleMute() {
+            const isMuted = soundManager.toggleMute();
+            const btn = document.getElementById('mute-btn');
+            if (isMuted) { btn.innerText = "🔇 音OFF"; btn.classList.add('muted'); }
+            else { btn.innerText = "🔊 音ON"; btn.classList.remove('muted'); }
+        }
+
+        function resetGameState() {
+            survivalTime = 0; spawnCooldown = 0;
+            speedItemCooldown = CONFIG.speedItemInterval; shieldItemCooldown = CONFIG.shieldItemInterval;
+            skills.forEach(s => disposeObject(s.mesh)); skills = [];
+            items.forEach(i => i.remove()); items = [];
+            lightnings.forEach(l => disposeObject(l.mesh)); lightnings = [];
+            afterimages.forEach(a => disposeObject(a.mesh)); afterimages = [];
+
+            player.mesh.position.set(0, 0, 0); targetPos.set(0, 0, 0);
+            player.isMoving = false; moveIndicator.material.opacity = 0;
+            player.mesh.rotation.set(0, 0, 0);
+            currentPlayerSpeed = CONFIG.basePlayerSpeed;
+
+            itemShieldActive = false; wSkillShieldActive = false; wSkillTimer = 0;
+            isDashing = false; dashTimer = 0;
+            player.setColor(false); player.setWShieldVisible(false);
+            updateSpeedUI(); updateShieldUI();
+
+            qUnlocked = false; wUnlocked = false; eUnlocked = false;
+            qCoolTimer = 0; wCoolTimer = 0; eCoolTimer = 0;
+            updateSkillUI();
+        }
+
+        function setShield(active) {
+            hasShield = active; player.setColor(active);
+            document.getElementById('shield-display').style.display = active ? 'block' : 'none';
+            if (active) soundManager.play('shield');
+        }
+        function updateSpeedUI() {
+            const percent = Math.round((currentPlayerSpeed / CONFIG.basePlayerSpeed) * 100);
+            document.getElementById('speed-display').innerText = `スピード: ${percent}%`;
+        }
+        function updateShieldUI() {
+            const el = document.getElementById('shield-display');
+            if (itemShieldActive) { el.style.display = 'block'; el.innerText = "🛡️ ガード中 🛡️"; } else { el.style.display = 'none'; }
+        }
+        function updateSkillUI() {
+            const qEl = document.getElementById('skill-q');
+            if (!qUnlocked) { qEl.className = 'skill-box cooldown'; qEl.innerText = `Q: ${(Math.max(0, CONFIG.skillUnlockTimeQ - survivalTime)).toFixed(0)}秒後解禁`; }
+            else if (qCoolTimer > 0) { qEl.className = 'skill-box cooldown'; qEl.innerText = `Q: ${qCoolTimer.toFixed(1)}`; }
+            else { qEl.className = 'skill-box ready'; qEl.innerText = "Q: READY"; }
+
+            const wEl = document.getElementById('skill-w');
+            if (!wUnlocked) { wEl.className = 'skill-box cooldown'; wEl.innerText = `W: ${(Math.max(0, CONFIG.skillUnlockTimeW - survivalTime)).toFixed(0)}秒後解禁`; }
+            else if (wSkillShieldActive) { wEl.className = 'skill-box active'; wEl.innerText = `W: ACTIVE`; }
+            else if (wCoolTimer > 0) { wEl.className = 'skill-box cooldown'; wEl.innerText = `W: ${wCoolTimer.toFixed(1)}`; }
+            else { wEl.className = 'skill-box ready'; wEl.innerText = "W: READY"; }
+
+            const eEl = document.getElementById('skill-e');
+            if (!eUnlocked) { eEl.className = 'skill-box cooldown'; eEl.innerText = `E: ${(Math.max(0, CONFIG.skillUnlockTimeE - survivalTime)).toFixed(0)}秒後解禁`; }
+            else if (isDashing) { eEl.className = 'skill-box active'; eEl.innerText = `E: DASHING`; }
+            else if (eCoolTimer > 0) { eEl.className = 'skill-box cooldown'; eEl.innerText = `E: ${eCoolTimer.toFixed(1)}`; }
+            else { eEl.className = 'skill-box ninja-ready'; eEl.innerText = "E: READY"; }
+        }
+
+        function updateCamera() {
+            if (!player) return;
+            const targetX = player.mesh.position.x; const targetZ = player.mesh.position.z + CONFIG.cameraOffsetZ;
+            camera.position.x += (targetX - camera.position.x) * 0.1;
+            camera.position.z += (targetZ - camera.position.z) * 0.1;
+            camera.position.y = CONFIG.cameraHeight;
+            camera.lookAt(camera.position.x, 0, camera.position.z - CONFIG.cameraOffsetZ);
+        }
+
+        function onKeyDown(e) {
+            if (!gameActive) return;
+            if (e.key === 's' || e.key === 'S') {
+                if (!isDashing) {
+                    targetPos.copy(player.mesh.position); player.isMoving = false; moveIndicator.material.opacity = 0;
+                }
+            }
+            if ((e.key === 'q' || e.key === 'Q') && qUnlocked && qCoolTimer <= 0) {
+                fireLightning(); qCoolTimer = CONFIG.qCooldown;
+            }
+            if ((e.key === 'w' || e.key === 'W') && wUnlocked && wCoolTimer <= 0 && !wSkillShieldActive) {
+                activateWSkill();
+            }
+            if ((e.key === 'e' || e.key === 'E') && eUnlocked && eCoolTimer <= 0 && !isDashing) {
+                activateESkill();
+            }
+        }
+
+        function fireLightning() {
+            const dir = new THREE.Vector3();
+            if (player.isMoving) dir.subVectors(targetPos, player.mesh.position);
+            else { const v = new THREE.Vector3(0, 0, 1); v.applyQuaternion(player.mesh.quaternion); dir.copy(v); }
+            if (dir.lengthSq() === 0) dir.set(0, 0, -1);
+            lightnings.push(new LightningShot(player.mesh.position, dir));
+            soundManager.play('skill');
+        }
+
+        function activateWSkill() {
+            wSkillShieldActive = true; wSkillTimer = CONFIG.wDuration;
+            player.setWShieldVisible(true); soundManager.play('shield');
+        }
+
+        function activateESkill() {
+            isDashing = true; dashTimer = CONFIG.eDuration;
+            eCoolTimer = CONFIG.eCooldown;
+            let dashDir = new THREE.Vector3();
+            if (player.isMoving) {
+                dashDir.subVectors(targetPos, player.mesh.position).normalize();
+            } else {
+                const v = new THREE.Vector3(0, 0, 1); v.applyQuaternion(player.mesh.quaternion); dashDir.copy(v);
+            }
+            const dashDist = CONFIG.basePlayerSpeed * CONFIG.dashSpeedMultiplier * CONFIG.eDuration;
+            targetPos.copy(player.mesh.position).add(dashDir.multiplyScalar(dashDist));
+            targetPos.x = Math.max(-CONFIG.mapLimit, Math.min(CONFIG.mapLimit, targetPos.x));
+            targetPos.z = Math.max(-CONFIG.mapLimit, Math.min(CONFIG.mapLimit, targetPos.z));
+            player.isMoving = true;
+            soundManager.play('shield');
+        }
+
+        // ★新規: 共通ターゲット更新
+        function updateMoveTarget(clientX, clientY) {
+            if (!gameActive || isDashing) return;
+
+            mouse.x = (clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+            const intersect = new THREE.Vector3();
+            raycaster.ray.intersectPlane(plane, intersect);
+
+            if (intersect) {
+                targetPos.copy(intersect);
+                moveIndicator.position.copy(targetPos);
+                moveIndicator.position.y = 0.5;
+                moveIndicator.material.opacity = 1;
+                moveIndicator.scale.set(1, 1, 1);
+            }
+        }
+
+        function onRightClick(e) {
+            // e.preventDefault() は init() で処理済みだが念のため
+            e.preventDefault();
+            // ここでの処理は不要（mousedownで処理する）
+        }
+
+        // ★新規: マウスイベントハンドラ
+        function onMouseDown(e) {
+            if (e.button === 2) { // 右クリック
+                isRightMouseDown = true;
+                updateMoveTarget(e.clientX, e.clientY);
+            }
+        }
+
+        function onMouseUp(e) {
+            if (e.button === 2) {
+                isRightMouseDown = false;
+            }
+        }
+
+        function onMouseMove(e) {
+            if (isRightMouseDown) {
+                updateMoveTarget(e.clientX, e.clientY);
+            }
+        }
+
+        function manageSpawns(dt) {
+            spawnCooldown -= dt;
+            if (spawnCooldown <= 0) {
+                const speedMult = 1.0 + Math.min(0.5, survivalTime * 0.01);
+                const baseInterval = Math.max(0.1, 0.8 - (survivalTime * 0.015));
+                let count = 1;
+                if (survivalTime > 30 && Math.random() < 0.3) count = 2;
+                if (survivalTime > 60 && Math.random() < 0.5) count = 3;
+                for (let i = 0; i < count; i++) {
+                    let type = 'normal';
+                    if (survivalTime > 100 && Math.random() < 0.15) type = 'black';
+                    skills.push(new SkillBall(speedMult, type));
+                }
+                spawnCooldown = baseInterval;
+            }
+            speedItemCooldown -= dt;
+            if (speedItemCooldown <= 0) { items.push(new SpeedItem()); speedItemCooldown = CONFIG.speedItemInterval; }
+            shieldItemCooldown -= dt;
+            if (shieldItemCooldown <= 0) { items.push(new ShieldItem()); shieldItemCooldown = CONFIG.shieldItemInterval; }
+        }
+
+        const _pPos = new THREE.Vector3();
+        const _dir = new THREE.Vector3();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            let delta = clock.getDelta(); if (!delta || delta > 0.1 || isNaN(delta)) delta = 0.016;
+            const time = clock.getElapsedTime();
+
+            if (gameActive) {
+                survivalTime += delta; manageSpawns(delta);
+                if (!qUnlocked && survivalTime >= CONFIG.skillUnlockTimeQ) { qUnlocked = true; soundManager.play('shield'); }
+                if (!wUnlocked && survivalTime >= CONFIG.skillUnlockTimeW) { wUnlocked = true; soundManager.play('shield'); }
+                if (!eUnlocked && survivalTime >= CONFIG.skillUnlockTimeE) { eUnlocked = true; soundManager.play('shield'); }
+                if (qCoolTimer > 0) qCoolTimer -= delta; if (wCoolTimer > 0) wCoolTimer -= delta;
+                if (wSkillShieldActive) {
+                    wSkillTimer -= delta;
+                    if (wSkillTimer <= 0) { wSkillShieldActive = false; player.setWShieldVisible(false); wCoolTimer = CONFIG.wCooldown; }
+                }
+                if (isDashing) {
+                    dashTimer -= delta;
+                    // 残像生成 (頻度調整)
+                    if (Math.random() < 0.3) afterimages.push(new Afterimage(player.mesh));
+                    if (dashTimer <= 0) { isDashing = false; eCoolTimer = CONFIG.eCooldown; }
+                }
+                if (eCoolTimer > 0) eCoolTimer -= delta;
+
+                updateSkillUI();
+
+                const dist = player.mesh.position.distanceTo(targetPos);
+                if (dist > 0.5) {
+                    player.isMoving = true;
+                    _dir.subVectors(targetPos, player.mesh.position).normalize();
+                    let speed = currentPlayerSpeed;
+                    if (isDashing) speed *= CONFIG.dashSpeedMultiplier;
+                    const moveDist = speed * delta;
+                    if (moveDist >= dist) player.mesh.position.copy(targetPos);
+                    else player.mesh.position.add(_dir.multiplyScalar(moveDist));
+                } else {
+                    player.isMoving = false;
+                    if (isDashing) { isDashing = false; eCoolTimer = CONFIG.eCooldown; }
+                }
+                if (moveIndicator.material.opacity > 0) { moveIndicator.material.opacity -= delta * 3; moveIndicator.scale.multiplyScalar(0.9); }
+
+                // 電撃処理
+                for (let i = lightnings.length - 1; i >= 0; i--) {
+                    const bolt = lightnings[i]; const alive = bolt.update(delta);
+                    if (!alive) { disposeObject(bolt.mesh); lightnings.splice(i, 1); continue; }
+                    for (let j = skills.length - 1; j >= 0; j--) {
+                        const enemy = skills[j];
+                        const distSq = bolt.mesh.position.distanceToSquared(enemy.mesh.position);
+                        if (distSq < (2.0 + enemy.radius) ** 2) {
+                            if (enemy.type === 'black') { /* 無効 */ } else { disposeObject(enemy.mesh); skills.splice(j, 1); }
                         }
                     }
                 }
-            }
-            document.getElementById('timer').innerText = survivalTime.toFixed(2);
-        }
-        if (player) player.update(delta);
-        updateCamera(); renderer.render(scene, camera);
-    }
 
-    function endGame() {
-        gameActive = false; soundManager.stopAllBGM(); soundManager.play('defeat');
-        document.getElementById('final-score').innerText = "記録: " + survivalTime.toFixed(2) + "秒";
-        document.getElementById('player-name-input').style.display = 'inline-block';
-        document.getElementById('submit-score-btn').style.display = 'inline-block';
-        document.getElementById('result-overlay').style.display = 'flex';
-        showRanking();
-    }
-    function onResize() {
-        camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-    window.onload = init;
-</script>
+                // 残像処理
+                for (let i = afterimages.length - 1; i >= 0; i--) {
+                    const af = afterimages[i];
+                    if (!af.update(delta)) afterimages.splice(i, 1);
+                }
+
+                for (let i = skills.length - 1; i >= 0; i--) {
+                    const s = skills[i]; const alive = s.update(delta);
+                    _pPos.copy(player.mesh.position); _pPos.y = s.mesh.position.y;
+                    if (s.checkHit(_pPos)) {
+                        if (isDashing) {
+                            // 無傷
+                        } else if (wSkillShieldActive) {
+                            disposeObject(s.mesh); skills.splice(i, 1); soundManager.play('break');
+                        } else if (itemShieldActive) {
+                            itemShieldActive = false; player.setColor(false); updateShieldUI();
+                            disposeObject(s.mesh); skills.splice(i, 1); soundManager.play('break');
+                        } else { endGame(); return; }
+                    } else if (!alive) { disposeObject(s.mesh); skills.splice(i, 1); }
+                }
+
+                for (let i = items.length - 1; i >= 0; i--) {
+                    const item = items[i]; item.update(delta, time);
+                    _pPos.copy(player.mesh.position);
+                    const distSq = (_pPos.x - item.mesh.position.x) ** 2 + (_pPos.z - item.mesh.position.z) ** 2;
+                    if (distSq < 6.25) {
+                        if (item.type === 'speed') {
+                            currentPlayerSpeed += CONFIG.speedBoostAmount; updateSpeedUI();
+                            item.remove(); items.splice(i, 1); soundManager.play('item');
+                        } else if (item.type === 'shield') {
+                            if (!itemShieldActive) {
+                                itemShieldActive = true; player.setColor(true); updateShieldUI();
+                                item.remove(); items.splice(i, 1); soundManager.play('shield');
+                            }
+                        }
+                    }
+                }
+                document.getElementById('timer').innerText = survivalTime.toFixed(2);
+            }
+            if (player) player.update(delta);
+            updateCamera(); renderer.render(scene, camera);
+        }
+
+        function endGame() {
+            gameActive = false; soundManager.stopAllBGM(); soundManager.play('defeat');
+            document.getElementById('final-score').innerText = "記録: " + survivalTime.toFixed(2) + "秒";
+            document.getElementById('player-name-input').style.display = 'inline-block';
+            document.getElementById('submit-score-btn').style.display = 'inline-block';
+            document.getElementById('result-overlay').style.display = 'flex';
+            showRanking();
+        }
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        window.onload = init;
+    </script>
 </body>
+
 </html>
