@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ドッヂボール (Final UI Fix)</title>
+    <title>THE ドッヂボール (Boot Shape Final)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
@@ -22,21 +22,19 @@
 
         #hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         
-        /* ★修正: HUD全体を縮小し、背景を透過させる */
         #top-bar { 
             position: absolute; top: 10px; left: 50%; 
-            transform: translateX(-50%) scale(0.75); /* 全体を75%に縮小 */
+            transform: translateX(-50%) scale(0.75); 
             transform-origin: top center;
             display: flex; flex-direction: column; align-items: center;
-            padding: 5px 30px 10px; /* 余白を削減 */
-            background: rgba(255, 255, 255, 0.5); /* 透過度アップ (0.8 -> 0.5) */
+            padding: 5px 30px 10px; 
+            background: rgba(255, 255, 255, 0.5); 
             border-radius: 25px; 
-            border: 2px solid rgba(255, 173, 214, 0.8); /* 枠線も少し薄く */
+            border: 2px solid rgba(255, 173, 214, 0.8); 
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 320px; /* 幅も少し狭く */
-            backdrop-filter: blur(4px); /* すりガラス効果 */
+            width: 320px; 
+            backdrop-filter: blur(4px); 
         }
-        /* 文字は見やすくキープ */
         #timer-label { 
             font-size: 14px; color: #ff5588; font-weight: 900; letter-spacing: 2px; margin-bottom: -2px; 
             text-shadow: 1px 1px 0 #fff;
@@ -55,7 +53,6 @@
         #speed-display { background: #00ccff; }
         #shield-display { background: #00dd66; display: none; }
         
-        /* スキルインジケーター */
         .skill-container { display: flex; gap: 8px; margin-top: 5px; }
         .skill-box {
             background: rgba(100, 100, 100, 0.8); 
@@ -381,22 +378,24 @@
         Assets.materials.ball = new THREE.MeshStandardMaterial({ map: tex, emissive: 0xff55a3, emissiveIntensity: 0.3, roughness: 0.4 });
         Assets.materials.blackBall = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x000000, roughness: 0.1, metalness: 0.9 });
 
-        // ★修正: ブーツの形状をよりリアルに、向きを修正
+        // ★修正: 靴の形状 (スニーカー風に詳細化)
         const shoeShape = new THREE.Shape();
-        shoeShape.moveTo(0, 0); 
-        shoeShape.lineTo(1.2, 0); // ソール
-        shoeShape.quadraticCurveTo(1.4, 0.1, 1.4, 0.4); // つま先上がり
-        shoeShape.lineTo(0.8, 0.7); // 甲
-        shoeShape.lineTo(0, 0.9); // 履き口
-        shoeShape.lineTo(-0.2, 0.9); // かかと上
-        shoeShape.lineTo(-0.2, 0); // かかと下
-        
-        Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.6, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
+        const s = 1.0;
+        shoeShape.moveTo(-0.6*s, 0); // かかと下
+        shoeShape.lineTo(0.6*s, 0);  // つま先下
+        shoeShape.quadraticCurveTo(0.9*s, 0, 0.9*s, 0.3*s); // つま先
+        shoeShape.quadraticCurveTo(0.8*s, 0.5*s, 0.4*s, 0.6*s); // 甲
+        shoeShape.lineTo(-0.1*s, 0.8*s); // タン上
+        shoeShape.lineTo(-0.6*s, 0.8*s); // かかと上
+        shoeShape.lineTo(-0.6*s, 0); // 閉じる
+
+        Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.5, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
         Assets.geometries.shoe.center();
-        
-        // ★修正: ここで形状自体を回転させておくと安全
-        Assets.geometries.shoe.rotateX(Math.PI); // 上下反転（ソールを下に）
-        // Assets.geometries.shoe.rotateY(Math.PI / 2); // 必要に応じて
+        // ★修正: 上下逆さまにならないように回転をリセット
+        // ExtrudeはZ方向に厚みが出る。ShapeはXY平面。
+        // これを地面に置くとき（Yアップ）、XZ平面に寝かせたいならX軸-90度回転。
+        // 立たせたい（側面を見せたい）なら回転なしでOKだが、アイテムとして回すなら立っていたほうが見栄えが良い。
+        // ここでは「立っている」状態をデフォルトにする。
         
         Assets.materials.shoe = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x0088ff, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.5 });
 
@@ -450,8 +449,11 @@
             const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
             shoeMesh.scale.set(1.5, 1.5, 1.5);
             
-            // ★修正: 回転リセット (ジオメトリ側で調整済み)
-            shoeMesh.rotation.set(0, 0, 0);
+            // ★修正: 正しく立つように回転リセット＆調整
+            // ShapeをXY平面に描いたので、そのままではZ方向に厚みがある板。
+            // これをY軸回転させるなら、そのままでOK。ソールはY=0付近。
+            shoeMesh.rotation.set(0, 0, 0); 
+            // もし上下逆なら Math.PI をX軸にかけるが、座標系的にこれで正立のはず。
             
             this.rotateGroup = new THREE.Group(); 
             this.rotateGroup.add(shoeMesh);
