@@ -58,8 +58,18 @@
         /* スキルインジケーター */
         .skill-container { display: flex; gap: 8px; margin-top: 5px; }
         .skill-box {
-            background: rgba(100, 100, 100, 0.8); padding: 4px 12px; border-radius: 15px; color: #fff; font-weight: bold; font-size: 12px;
-            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 60px;
+            background: rgba(100, 100, 100, 0.8); 
+            padding: 4px 12px; 
+            border-radius: 15px; 
+            color: #fff; 
+            font-weight: bold; 
+            font-size: 12px;
+            transition: all 0.3s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-width: 90px; 
+            white-space: nowrap;
         }
         .skill-box.ready { background: #00ccff; box-shadow: 0 0 8px #00ccff; transform: scale(1.05); }
         .skill-box.active { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
@@ -70,7 +80,6 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, rgba(255, 220, 240, 0.9) 0%, rgba(220, 240, 255, 0.9) 100%);
             display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; pointer-events: auto; display: none; 
-            /* スタート画面全体も少し小さくして見やすく */
             transform: scale(0.95);
         }
         #start-screen { display: flex; z-index: 150; }
@@ -120,12 +129,14 @@
 
         #result-title { font-size: 70px; color: #ff6699; margin-bottom: 10px; text-shadow: 3px 3px 0 #fff, 5px 5px 0 #ffcc00; }
         #final-score { font-size: 45px; color: #555; margin-bottom: 20px; font-weight: 900; text-shadow: 2px 2px 0 #fff; }
+        
         #loading {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffecf2; color: #ff6699; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             font-size: 32px; font-weight: 900; letter-spacing: 2px; z-index: 200; text-shadow: 2px 2px 0 #fff;
         }
         #error-log { color: #ff5555; font-size: 14px; margin-top: 20px; white-space: pre-wrap; text-align: left; max-width: 80%; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 10px; border: 2px solid #ffaaaa; display: none; }
+        
         #sound-notice { display: none; }
 
         /* ランキング */
@@ -195,6 +206,7 @@
         <span class="volume-label">おんりょう</span>
         <input type="range" id="volume-slider" min="0" max="100" value="50">
     </div>
+    <div id="sound-notice">※soundsフォルダに音声ファイルが必要です</div>
 </div>
 
 <div id="result-overlay" class="overlay-screen">
@@ -342,7 +354,7 @@
     let qCoolTimer = 0, wCoolTimer = 0, eCoolTimer = 0;
     
     let targetPos = new THREE.Vector3();
-    let isRightMouseDown = false;
+    let isRightMouseDown = false; // マウス状態管理
 
     function disposeObject(obj) {
         if (!obj) return;
@@ -369,7 +381,7 @@
         Assets.materials.ball = new THREE.MeshStandardMaterial({ map: tex, emissive: 0xff55a3, emissiveIntensity: 0.3, roughness: 0.4 });
         Assets.materials.blackBall = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x000000, roughness: 0.1, metalness: 0.9 });
 
-        // ★修正: 靴の形 (厚みのあるスニーカー)
+        // ★修正: ブーツの形状をよりリアルに、向きを修正
         const shoeShape = new THREE.Shape();
         shoeShape.moveTo(0, 0); 
         shoeShape.lineTo(1.2, 0); // ソール
@@ -381,11 +393,10 @@
         
         Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.6, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
         Assets.geometries.shoe.center();
-        // ★修正: 靴が正立するように回転させない (形状定義をXZ平面に合わせるか、配置時に回転)
-        // ここではShapeがXY平面なので、Z軸に厚みがつく。
-        // これを地面に置くには、X軸回りに回転させないといけない場合があるが、
-        // 前回のフィードバックで「逆さま」だったので、あえて回転をリセットして確認。
-        // 一旦リセット
+        
+        // ★修正: ここで形状自体を回転させておくと安全
+        Assets.geometries.shoe.rotateX(Math.PI); // 上下反転（ソールを下に）
+        // Assets.geometries.shoe.rotateY(Math.PI / 2); // 必要に応じて
         
         Assets.materials.shoe = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x0088ff, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.5 });
 
@@ -439,10 +450,9 @@
             const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
             shoeMesh.scale.set(1.5, 1.5, 1.5);
             
-            // ★修正: 靴が正しく立つように回転 (180度反転させて底を下にする)
-            shoeMesh.rotation.x = Math.PI; // 上下反転
-            shoeMesh.rotation.z = Math.PI; // 前後反転
-
+            // ★修正: 回転リセット (ジオメトリ側で調整済み)
+            shoeMesh.rotation.set(0, 0, 0);
+            
             this.rotateGroup = new THREE.Group(); 
             this.rotateGroup.add(shoeMesh);
             this.mesh.add(this.rotateGroup);
