@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ドッヂボール (Boot Shape Fix)</title>
+    <title>THE ドッヂボール (Mouse Hold Move)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
@@ -38,7 +38,7 @@
         .skill-container { display: flex; gap: 10px; margin-top: 8px; }
         .skill-box {
             background: #aaa; padding: 5px 15px; border-radius: 20px; color: #fff; font-weight: bold; font-size: 14px;
-            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 100px;
+            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 80px;
         }
         .skill-box.ready { background: #00ccff; box-shadow: 0 0 10px #00ccff; transform: scale(1.05); }
         .skill-box.active { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
@@ -223,6 +223,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+    // Firebase設定
     const firebaseConfig = {
       apiKey: "AIzaSyC9qf1OCM5v8zCMSJIpvqdGoqrCewTyQbQ",
       authDomain: "dodge-ranking.firebaseapp.com",
@@ -318,6 +319,7 @@
     let qCoolTimer = 0, wCoolTimer = 0, eCoolTimer = 0;
     
     let targetPos = new THREE.Vector3();
+    let isRightMouseDown = false; // マウス状態管理
 
     function disposeObject(obj) {
         if (!obj) return;
@@ -346,7 +348,6 @@
 
         // ★修正: ブーツらしい形に修正
         const shoeShape = new THREE.Shape();
-        // かかとからスタート
         shoeShape.moveTo(-0.6, 0.8); // Top back
         shoeShape.lineTo(-0.6, 0.0); // Heel bottom
         shoeShape.lineTo(0.6, 0.0);  // Toe bottom
@@ -410,12 +411,12 @@
             const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
             shoeMesh.scale.set(1.5, 1.5, 1.5);
             // ★修正: 向きを正立させる
-            shoeMesh.rotation.x = 0; 
+            shoeMesh.rotation.x = Math.PI; 
+            shoeMesh.rotation.z = 0; 
             
             this.rotateGroup = new THREE.Group(); 
             this.rotateGroup.add(shoeMesh);
             this.mesh.add(this.rotateGroup);
-            // const light = new THREE.PointLight(0x00ccff, 1.5, 8); // 軽量化のためライト削除
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 2.0;
@@ -431,7 +432,6 @@
             shieldMesh.scale.set(1.5, 1.5, 1.5);
             this.rotateGroup = new THREE.Group(); this.rotateGroup.add(shieldMesh);
             this.mesh.add(this.rotateGroup);
-            // const light = new THREE.PointLight(0x00ff88, 1.5, 8); // 軽量化のためライト削除
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 1.5;
@@ -456,7 +456,7 @@
         }
     }
 
-    // 残像クラス (軽量化: 生成頻度低減)
+    // 残像クラス
     class Afterimage {
         constructor(originalMesh) {
             this.mesh = originalMesh.clone();
@@ -630,8 +630,14 @@
             moveIndicator.rotation.x = -Math.PI/2; moveIndicator.position.y = 0.5; scene.add(moveIndicator);
             
             clock = new THREE.Clock(); raycaster = new THREE.Raycaster(); mouse = new THREE.Vector2();
-            window.addEventListener('resize', onResize); window.addEventListener('contextmenu', onRightClick);
+            window.addEventListener('resize', onResize); window.addEventListener('contextmenu', onRightClick); // contextmenu はメニュー阻止
+            
+            // ★変更: マウスイベントリスナー
+            window.addEventListener('mousedown', onMouseDown);
+            window.addEventListener('mouseup', onMouseUp);
+            window.addEventListener('mousemove', onMouseMove);
             window.addEventListener('keydown', onKeyDown);
+
             document.getElementById('start-btn').addEventListener('click', startGame);
             document.getElementById('retry-btn').addEventListener('click', retryGame);
             document.getElementById('menu-btn').addEventListener('click', goToMenu);
@@ -824,16 +830,50 @@
         soundManager.play('shield'); 
     }
 
-    function onRightClick(e) {
-        e.preventDefault(); if (!gameActive) return;
-        if (isDashing) return;
-        mouse.x = (e.clientX / window.innerWidth) * 2 - 1; mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    // ★新規: 共通ターゲット更新
+    function updateMoveTarget(clientX, clientY) {
+        if (!gameActive || isDashing) return;
+
+        mouse.x = (clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
         raycaster.setFromCamera(mouse, camera);
-        const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); const intersect = new THREE.Vector3();
+        const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+        const intersect = new THREE.Vector3();
         raycaster.ray.intersectPlane(plane, intersect);
+
         if (intersect) {
-            targetPos.copy(intersect); moveIndicator.position.copy(targetPos);
-            moveIndicator.position.y = 0.5; moveIndicator.material.opacity = 1; moveIndicator.scale.set(1,1,1);
+            targetPos.copy(intersect);
+            moveIndicator.position.copy(targetPos);
+            moveIndicator.position.y = 0.5;
+            moveIndicator.material.opacity = 1;
+            moveIndicator.scale.set(1, 1, 1);
+        }
+    }
+
+    function onRightClick(e) {
+        // e.preventDefault() は init() で処理済みだが念のため
+        e.preventDefault();
+        // ここでの処理は不要（mousedownで処理する）
+    }
+
+    // ★新規: マウスイベントハンドラ
+    function onMouseDown(e) {
+        if (e.button === 2) { // 右クリック
+            isRightMouseDown = true;
+            updateMoveTarget(e.clientX, e.clientY);
+        }
+    }
+
+    function onMouseUp(e) {
+        if (e.button === 2) {
+            isRightMouseDown = false;
+        }
+    }
+
+    function onMouseMove(e) {
+        if (isRightMouseDown) {
+            updateMoveTarget(e.clientX, e.clientY);
         }
     }
 
