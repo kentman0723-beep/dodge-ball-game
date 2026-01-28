@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ドッヂボール (Boot Fixed)</title>
+    <title>THE ドッヂボール (Final UI Fix)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
@@ -22,129 +22,128 @@
 
         #hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         
+        /* ★修正: HUD全体を縮小し、背景を透過させる */
         #top-bar { 
-            position: absolute; top: 15px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center;
-            padding: 10px 40px; 
-            background: rgba(255, 255, 255, 0.7); /* 少し不透明度を上げる */
-            border-radius: 25px; border: 3px solid #ffadd6;
-            box-shadow: 0 4px 15px rgba(255, 100, 150, 0.3);
-            width: 360px;
+            position: absolute; top: 10px; left: 50%; 
+            transform: translateX(-50%) scale(0.75); /* 全体を75%に縮小 */
+            transform-origin: top center;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 5px 30px 10px; /* 余白を削減 */
+            background: rgba(255, 255, 255, 0.5); /* 透過度アップ (0.8 -> 0.5) */
+            border-radius: 25px; 
+            border: 2px solid rgba(255, 173, 214, 0.8); /* 枠線も少し薄く */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 320px; /* 幅も少し狭く */
+            backdrop-filter: blur(4px); /* すりガラス効果 */
         }
-        /* ★修正: 文字サイズを大きく、色を濃く、縁取りを強化 */
+        /* 文字は見やすくキープ */
         #timer-label { 
-            font-size: 20px; 
-            color: #ff5588; 
-            font-weight: 900; 
-            letter-spacing: 2px; 
-            margin-bottom: -5px; 
-            text-shadow: 2px 2px 0 #fff; /* 白縁取り */
+            font-size: 14px; color: #ff5588; font-weight: 900; letter-spacing: 2px; margin-bottom: -2px; 
+            text-shadow: 1px 1px 0 #fff;
         }
         #timer { 
-            font-size: 52px; 
-            font-weight: 900; 
-            color: #444; 
-            text-shadow: 3px 3px 0 #fff, 5px 5px 0 #ffadd6; 
-            line-height: 1.1; 
+            font-size: 52px; font-weight: 900; color: #444; 
+            text-shadow: 2px 2px 0 #fff, 4px 4px 0 rgba(255, 173, 214, 0.5); 
+            line-height: 1.0; 
         }
         
-        .status-line { display: flex; justify-content: center; gap: 10px; margin-top: 8px; }
+        .status-line { display: flex; justify-content: center; gap: 10px; margin-top: 5px; }
         .status-text { 
-            font-size: 14px; font-weight: bold; color: #fff; padding: 4px 12px; border-radius: 15px; 
-            text-shadow: 1px 1px 1px rgba(0,0,0,0.3); 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 14px; font-weight: 900; color: #fff; padding: 4px 12px; border-radius: 15px; 
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3); box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         #speed-display { background: #00ccff; }
         #shield-display { background: #00dd66; display: none; }
         
-        .skill-container { display: flex; gap: 8px; margin-top: 8px; }
+        /* スキルインジケーター */
+        .skill-container { display: flex; gap: 8px; margin-top: 5px; }
         .skill-box {
-            background: #aaa; padding: 4px 12px; border-radius: 15px; color: #fff; font-weight: bold; font-size: 12px;
-            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 65px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: rgba(100, 100, 100, 0.8); padding: 4px 12px; border-radius: 15px; color: #fff; font-weight: bold; font-size: 12px;
+            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 60px;
         }
         .skill-box.ready { background: #00ccff; box-shadow: 0 0 8px #00ccff; transform: scale(1.05); }
         .skill-box.active { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
-        .skill-box.cooldown { background: #666; color: #bbb; }
+        .skill-box.cooldown { background: rgba(80, 80, 80, 0.8); color: #ccc; }
         .skill-box.ninja-ready { background: #8800ff; box-shadow: 0 0 8px #8800ff; }
 
         .overlay-screen { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: linear-gradient(135deg, rgba(255, 220, 240, 0.95) 0%, rgba(220, 240, 255, 0.95) 100%);
+            background: linear-gradient(135deg, rgba(255, 220, 240, 0.9) 0%, rgba(220, 240, 255, 0.9) 100%);
             display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; pointer-events: auto; display: none; 
+            /* スタート画面全体も少し小さくして見やすく */
+            transform: scale(0.95);
         }
         #start-screen { display: flex; z-index: 150; }
 
-        h1 { font-size: 72px; color: #ff6699; margin: 0 0 20px 0; text-shadow: 3px 3px 0 #fff, 5px 5px 0 #66ccff, 7px 7px 0 #ffcc00; text-align: center; line-height: 1.2; font-weight: 900; }
+        h1 { font-size: 64px; color: #ff6699; margin: 0 0 20px 0; text-shadow: 3px 3px 0 #fff, 5px 5px 0 #66ccff; text-align: center; line-height: 1.2; font-weight: 900; }
         
         .info-container-row { display: flex; gap: 20px; justify-content: center; align-items: flex-start; margin-bottom: 20px; }
         .info-box {
-            background: #fff; border: 4px dotted #66ccff; border-radius: 25px; padding: 20px; text-align: left; width: 380px;
-            box-shadow: 0 10px 20px rgba(100, 200, 255, 0.2); color: #555;
+            background: #fff; border: 3px dotted #66ccff; border-radius: 20px; padding: 15px 20px; text-align: left; width: 340px;
+            box-shadow: 0 5px 15px rgba(100, 200, 255, 0.2); color: #555;
         }
-        .box-title { color: #ff6699; font-weight: 900; margin-bottom: 10px; font-size: 20px; text-align: center; border-bottom: 2px dashed #ffecf2; padding-bottom: 5px; }
-        .control-row { font-size: 16px; color: #666; margin: 8px 0; display: flex; align-items: center; font-weight: bold; }
+        .box-title { color: #ff6699; font-weight: 900; margin-bottom: 8px; font-size: 18px; text-align: center; border-bottom: 2px dashed #ffecf2; padding-bottom: 5px; }
+        .control-row { font-size: 15px; color: #666; margin: 6px 0; display: flex; align-items: center; font-weight: bold; }
         .key {
-            display: inline-block; background: #ffeedd; border: 2px solid #ffbb99; border-bottom: 4px solid #ffbb99;
-            border-radius: 12px; padding: 4px 10px; font-weight: bold; color: #ff8866; margin-right: 10px; min-width: 30px; text-align: center; font-size: 14px;
+            display: inline-block; background: #ffeedd; border: 2px solid #ffbb99; border-bottom: 3px solid #ffbb99;
+            border-radius: 10px; padding: 3px 8px; font-weight: bold; color: #ff8866; margin-right: 10px; min-width: 25px; text-align: center; font-size: 13px;
         }
         .item-icon {
-            display: inline-block; width: 28px; height: 28px; margin-right: 10px; border-radius: 50%;
-            text-align: center; line-height: 28px; font-size: 18px; background: #fff; border: 2px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: inline-block; width: 24px; height: 24px; margin-right: 10px; border-radius: 50%;
+            text-align: center; line-height: 24px; font-size: 16px; background: #fff; border: 2px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .icon-speed { color: #00ccff; border-color: #ccffff; }
         .icon-shield { color: #00dd66; border-color: #ccffdd; }
 
-        .btn-container { display: flex; gap: 20px; align-items: center; margin-bottom: 15px; margin-top: 5px; }
+        .btn-container { display: flex; gap: 20px; align-items: center; margin-bottom: 10px; margin-top: 5px; }
         button.kawaii-btn {
-            border: none; padding: 15px 40px; font-size: 22px; font-weight: 900; cursor: pointer; transition: all 0.2s;
-            font-family: 'M PLUS Rounded 1c', sans-serif; min-width: 220px; border-radius: 50px; color: #fff;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.1), 0 15px 20px rgba(0,0,0,0.1); position: relative; top: 0;
+            border: none; padding: 12px 35px; font-size: 20px; font-weight: 900; cursor: pointer; transition: all 0.2s;
+            font-family: 'M PLUS Rounded 1c', sans-serif; min-width: 200px; border-radius: 50px; color: #fff;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.1), 0 10px 20px rgba(0,0,0,0.1); position: relative; top: 0;
         }
-        button.kawaii-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 0 rgba(0,0,0,0.1), 0 20px 30px rgba(0,0,0,0.15); }
-        button.kawaii-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.1); }
+        button.kawaii-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 rgba(0,0,0,0.1), 0 15px 25px rgba(0,0,0,0.15); }
+        button.kawaii-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.1); }
         #start-btn, #retry-btn, #submit-score-btn { background: linear-gradient(to bottom, #ff88bb, #ff6699); text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
         #start-btn:hover, #retry-btn:hover, #submit-score-btn:hover { background: linear-gradient(to bottom, #ff99cc, #ff77aa); }
-        button.kawaii-btn.secondary { min-width: 160px; font-size: 18px; padding: 12px 30px; background: linear-gradient(to bottom, #66ccff, #44aaff); }
+        button.kawaii-btn.secondary { min-width: 150px; font-size: 16px; padding: 10px 25px; background: linear-gradient(to bottom, #66ccff, #44aaff); }
         button.kawaii-btn.secondary:hover { background: linear-gradient(to bottom, #88ddff, #66bbff); }
-        #mute-btn { margin-left: 20px; padding: 10px 25px; font-size: 16px; min-width: auto; border-radius: 30px; }
+        #mute-btn { margin-left: 20px; padding: 8px 20px; font-size: 14px; min-width: auto; border-radius: 30px; }
         #mute-btn.muted { background: linear-gradient(to bottom, #aaa, #888); }
 
         .volume-container {
-            display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 10px;
-            color: #6699ff; font-weight: bold; background: rgba(255,255,255,0.6); padding: 8px 20px; border-radius: 30px; width: fit-content;
+            display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 5px;
+            color: #6699ff; font-weight: bold; background: rgba(255,255,255,0.6); padding: 5px 15px; border-radius: 30px; width: fit-content;
         }
-        .volume-label { margin-right: 15px; font-size: 16px; }
-        input[type=range] { -webkit-appearance: none; width: 150px; height: 10px; background: #ddeeff; border-radius: 10px; outline: none; border: 2px solid #bfe0ff; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #ff6699; cursor: pointer; border: 3px solid #fff; box-shadow: 0 3px 5px rgba(0,0,0,0.2); }
+        .volume-label { margin-right: 10px; font-size: 14px; }
+        input[type=range] { -webkit-appearance: none; width: 120px; height: 8px; background: #ddeeff; border-radius: 10px; outline: none; border: 2px solid #bfe0ff; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #ff6699; cursor: pointer; border: 3px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        #result-title { font-size: 80px; color: #ff6699; margin-bottom: 10px; text-shadow: 3px 3px 0 #fff, 6px 6px 0 #ffcc00; }
-        #final-score { font-size: 50px; color: #555; margin-bottom: 20px; font-weight: 900; text-shadow: 2px 2px 0 #fff; }
-        
+        #result-title { font-size: 70px; color: #ff6699; margin-bottom: 10px; text-shadow: 3px 3px 0 #fff, 5px 5px 0 #ffcc00; }
+        #final-score { font-size: 45px; color: #555; margin-bottom: 20px; font-weight: 900; text-shadow: 2px 2px 0 #fff; }
         #loading {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffecf2; color: #ff6699; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             font-size: 32px; font-weight: 900; letter-spacing: 2px; z-index: 200; text-shadow: 2px 2px 0 #fff;
         }
         #error-log { color: #ff5555; font-size: 14px; margin-top: 20px; white-space: pre-wrap; text-align: left; max-width: 80%; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 10px; border: 2px solid #ffaaaa; display: none; }
-        
         #sound-notice { display: none; }
 
         /* ランキング */
         #ranking-section {
             background: #fff; border: 4px dotted #ffcc00; border-radius: 20px;
-            padding: 20px; width: 90%; max-width: 500px; max-height: 300px; overflow-y: auto;
+            padding: 15px; width: 90%; max-width: 450px; max-height: 250px; overflow-y: auto;
             margin-bottom: 20px; text-align: left;
         }
-        .ranking-row { display: flex; justify-content: space-between; padding: 5px 10px; border-bottom: 1px dashed #eee; }
+        .ranking-row { display: flex; justify-content: space-between; padding: 4px 10px; border-bottom: 1px dashed #eee; font-size: 15px; }
         .ranking-row:nth-child(1) { color: #e6b422; font-weight: bold; font-size: 1.2em; }
         .ranking-row:nth-child(2) { color: #c0c0c0; font-weight: bold; }
         .ranking-row:nth-child(3) { color: #b87333; font-weight: bold; }
-        .rank-name { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .rank-name { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
         #score-input-container { margin-bottom: 20px; display: flex; gap: 10px; }
         #player-name-input {
-            padding: 10px; border-radius: 10px; border: 2px solid #ffadd6; font-size: 18px; font-family: 'M PLUS Rounded 1c', sans-serif;
-            width: 200px; outline: none;
+            padding: 8px; border-radius: 10px; border: 2px solid #ffadd6; font-size: 16px; font-family: 'M PLUS Rounded 1c', sans-serif;
+            width: 180px; outline: none;
         }
     </style>
     <script type="importmap">
@@ -173,11 +172,11 @@
             <div class="control-row"><span class="key">右クリック</span> 移動 / <span class="key">S</span> 停止</div>
             <div style="border-top: 1px dashed #ddd; margin: 10px 0;"></div>
             <div class="control-row"><span class="key">Q</span> 電撃玉 (60秒後)</div>
-            <div style="font-size:14px; margin-left: 5px;">ピンクのボールを破壊！(CD:1秒)</div>
-            <div class="control-row" style="margin-top:10px;"><span class="key">W</span> バリア (100秒後)</div>
-            <div style="font-size:14px; margin-left: 5px;">3秒間守るシールド展開 (CD:2秒)</div>
-            <div class="control-row" style="margin-top:10px;"><span class="key">E</span> ブリンク (120秒後)</div>
-            <div style="font-size:14px; margin-left: 5px;">残像を残して瞬間移動＆無敵 (CD:3秒)</div>
+            <div style="font-size:13px; margin-left: 5px;">ピンクのボールを破壊！(CD:1秒)</div>
+            <div class="control-row" style="margin-top:8px;"><span class="key">W</span> バリア (100秒後)</div>
+            <div style="font-size:13px; margin-left: 5px;">3秒間守るシールド展開 (CD:2秒)</div>
+            <div class="control-row" style="margin-top:8px;"><span class="key">E</span> ブリンク (120秒後)</div>
+            <div style="font-size:13px; margin-left: 5px;">残像を残して瞬間移動＆無敵 (CD:3秒)</div>
         </div>
 
         <!-- アイテム説明 -->
@@ -196,7 +195,6 @@
         <span class="volume-label">おんりょう</span>
         <input type="range" id="volume-slider" min="0" max="100" value="50">
     </div>
-    <div id="sound-notice">※soundsフォルダに音声ファイルが必要です</div>
 </div>
 
 <div id="result-overlay" class="overlay-screen">
@@ -206,7 +204,7 @@
     <!-- ランキング登録フォーム -->
     <div id="score-input-container">
         <input type="text" id="player-name-input" placeholder="名前を入力(10文字)" maxlength="10">
-        <button id="submit-score-btn" class="kawaii-btn" style="min-width: 120px; padding: 10px;">登録</button>
+        <button id="submit-score-btn" class="kawaii-btn" style="min-width: 100px; padding: 8px;">登録</button>
     </div>
 
     <!-- ランキング表示エリア -->
@@ -266,6 +264,9 @@
         el.innerText += "Error: " + msg + "\n"; document.getElementById('loading-text').innerText = "SYSTEM FAILURE"; console.error(msg);
     }
     window.onerror = function(msg, url, line) { showError(`${msg}\nLine: ${line}`); return false; };
+
+    // ★修正: 右クリックメニュー完全抑制
+    document.oncontextmenu = function() { return false; };
 
     class SoundManager {
         constructor() {
@@ -341,7 +342,7 @@
     let qCoolTimer = 0, wCoolTimer = 0, eCoolTimer = 0;
     
     let targetPos = new THREE.Vector3();
-    let isRightMouseDown = false; // マウス状態管理
+    let isRightMouseDown = false;
 
     function disposeObject(obj) {
         if (!obj) return;
@@ -368,20 +369,24 @@
         Assets.materials.ball = new THREE.MeshStandardMaterial({ map: tex, emissive: 0xff55a3, emissiveIntensity: 0.3, roughness: 0.4 });
         Assets.materials.blackBall = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x000000, roughness: 0.1, metalness: 0.9 });
 
-        // ★修正: ブーツらしい形に修正
+        // ★修正: 靴の形 (厚みのあるスニーカー)
         const shoeShape = new THREE.Shape();
-        // かかとからスタート
-        shoeShape.moveTo(-0.6, 0.8); // Top back
-        shoeShape.lineTo(-0.6, 0.0); // Heel bottom
-        shoeShape.lineTo(0.6, 0.0);  // Toe bottom
-        shoeShape.quadraticCurveTo(0.9, 0.0, 0.9, 0.3); // Toe tip round
-        shoeShape.lineTo(0.5, 0.6);  // Lace area bottom
-        shoeShape.lineTo(0.2, 1.0);  // Tongue top
-        shoeShape.lineTo(-0.6, 0.8); // Back to start (Top)
+        shoeShape.moveTo(0, 0); 
+        shoeShape.lineTo(1.2, 0); // ソール
+        shoeShape.quadraticCurveTo(1.4, 0.1, 1.4, 0.4); // つま先上がり
+        shoeShape.lineTo(0.8, 0.7); // 甲
+        shoeShape.lineTo(0, 0.9); // 履き口
+        shoeShape.lineTo(-0.2, 0.9); // かかと上
+        shoeShape.lineTo(-0.2, 0); // かかと下
         
-        Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.4, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
+        Assets.geometries.shoe = new THREE.ExtrudeGeometry(shoeShape, { depth: 0.6, bevelEnabled: true, bevelThickness:0.05, bevelSize:0.05 });
         Assets.geometries.shoe.center();
-        // マテリアルは青
+        // ★修正: 靴が正立するように回転させない (形状定義をXZ平面に合わせるか、配置時に回転)
+        // ここではShapeがXY平面なので、Z軸に厚みがつく。
+        // これを地面に置くには、X軸回りに回転させないといけない場合があるが、
+        // 前回のフィードバックで「逆さま」だったので、あえて回転をリセットして確認。
+        // 一旦リセット
+        
         Assets.materials.shoe = new THREE.MeshStandardMaterial({ color: 0x00ccff, emissive: 0x0088ff, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.5 });
 
         // 盾アイテム
@@ -433,22 +438,11 @@
             super(); this.type = 'speed';
             const shoeMesh = new THREE.Mesh(Assets.geometries.shoe, Assets.materials.shoe);
             shoeMesh.scale.set(1.5, 1.5, 1.5);
-            // ★修正: 向きを正立させる
-            shoeMesh.rotation.x = 0; 
-            // 側面が見えるようにY軸回転させるために、グループ内でZ軸回転させて寝かす？
-            // ExtrudeはZ方向。X-90度回転で立つはずだが、座標系によって異なる。
-            // 試行: shapeをY-Upで描いたので、ExtrudeはZ方向に厚みがつく。
-            // つまり、このままだと「Z方向に伸びる靴」になる。
-            // これを「Y方向に伸びる靴」にするにはX-90度回転が必要。
-            // しかし前回逆さだったので、X+180度だったのかも。
-            // 今回は 0 で試す（デフォルト）。もし寝ていたら修正。
-            // (前回 Math.PI だったので、逆さま。0なら正しいはずだが、Shapeの向き次第)
             
-            // Shape: Yが高さ。Extrude: Zが厚み。
-            // そのまま置くと、Z方向に厚みのある「板」がXY平面に立つ。
-            // つまり、靴の側面が正面（Z軸）から見える状態。
-            // これでOK。
-            
+            // ★修正: 靴が正しく立つように回転 (180度反転させて底を下にする)
+            shoeMesh.rotation.x = Math.PI; // 上下反転
+            shoeMesh.rotation.z = Math.PI; // 前後反転
+
             this.rotateGroup = new THREE.Group(); 
             this.rotateGroup.add(shoeMesh);
             this.mesh.add(this.rotateGroup);
@@ -666,7 +660,13 @@
             
             clock = new THREE.Clock(); raycaster = new THREE.Raycaster(); mouse = new THREE.Vector2();
             window.addEventListener('resize', onResize); window.addEventListener('contextmenu', onRightClick);
-            window.addEventListener('keydown', onKeyDown);
+            
+            // ★修正: 右クリックでの移動をサポート
+            document.addEventListener('mousedown', onMouseDown);
+            document.addEventListener('mouseup', onMouseUp);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('keydown', onKeyDown);
+
             document.getElementById('start-btn').addEventListener('click', startGame);
             document.getElementById('retry-btn').addEventListener('click', retryGame);
             document.getElementById('menu-btn').addEventListener('click', goToMenu);
@@ -691,11 +691,6 @@
             slider.addEventListener('input', (e) => {
                 soundManager.setVolume(e.target.value / 100);
             });
-
-            // ★修正: 右クリックでの移動をサポート
-            document.addEventListener('mousedown', onMouseDown);
-            document.addEventListener('mouseup', onMouseUp);
-            document.addEventListener('mousemove', onMouseMove);
 
             document.addEventListener('click', () => {
                 if (!gameActive && !soundManager.isMuted) {
