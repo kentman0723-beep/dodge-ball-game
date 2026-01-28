@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ドッヂボール (Mouse Hold Move)</title>
+    <title>THE ドッヂボール</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
@@ -21,29 +21,38 @@
         .bb5 { width: 70px; height: 70px; background: #ddaaff; left: 90%; animation-duration: 9s; animation-delay: 0.5s; }
 
         #hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        
+        /* ★修正: HUDを小さく、透過度を上げる */
         #top-bar { 
             position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center;
-            padding: 10px 30px; background: rgba(255, 255, 255, 0.8); border-radius: 30px; border: 3px solid #ffadd6;
-            box-shadow: 0 5px 15px rgba(255, 173, 214, 0.4);
+            padding: 5px 20px; /* パディング縮小 */
+            background: rgba(255, 255, 255, 0.6); /* 透過度アップ 0.8 -> 0.6 */
+            border-radius: 20px; border: 2px solid #ffadd6; /* 枠線も少し細く */
+            box-shadow: 0 2px 10px rgba(255, 173, 214, 0.3);
+            width: 320px; /* 幅縮小 450px -> 320px */
         }
-        #timer-label { font-size: 16px; color: #ff88bb; font-weight: bold; letter-spacing: 2px; margin-bottom: -5px; }
-        #timer { font-size: 56px; font-weight: 900; color: #555; text-shadow: 2px 2px 0 #fff, 4px 4px 0 #ffadd6; line-height: 1; }
+        /* 文字サイズ縮小 */
+        #timer-label { font-size: 12px; color: #ff88bb; font-weight: bold; letter-spacing: 2px; margin-bottom: -2px; }
+        #timer { font-size: 42px; font-weight: 900; color: #555; text-shadow: 2px 2px 0 #fff, 3px 3px 0 #ffadd6; line-height: 1; }
         
-        .status-line { display: flex; justify-content: center; gap: 20px; margin-top: 5px; }
-        .status-text { font-size: 16px; font-weight: bold; color: #fff; padding: 5px 15px; border-radius: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+        .status-line { display: flex; justify-content: center; gap: 10px; margin-top: 5px; }
+        .status-text { 
+            font-size: 12px; font-weight: bold; color: #fff; padding: 3px 10px; border-radius: 15px; 
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.2); 
+        }
         #speed-display { background: #00ccff; }
         #shield-display { background: #00dd66; display: none; }
         
-        /* スキルインジケーター */
-        .skill-container { display: flex; gap: 10px; margin-top: 8px; }
+        /* スキルインジケーターも縮小 */
+        .skill-container { display: flex; gap: 5px; margin-top: 5px; }
         .skill-box {
-            background: #aaa; padding: 5px 15px; border-radius: 20px; color: #fff; font-weight: bold; font-size: 14px;
-            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 80px;
+            background: #aaa; padding: 3px 10px; border-radius: 15px; color: #fff; font-weight: bold; font-size: 11px;
+            transition: all 0.3s; display: flex; align-items: center; justify-content: center; min-width: 60px;
         }
-        .skill-box.ready { background: #00ccff; box-shadow: 0 0 10px #00ccff; transform: scale(1.05); }
-        .skill-box.active { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+        .skill-box.ready { background: #00ccff; box-shadow: 0 0 8px #00ccff; transform: scale(1.05); }
+        .skill-box.active { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
         .skill-box.cooldown { background: #555; color: #999; }
-        .skill-box.ninja-ready { background: #8800ff; box-shadow: 0 0 10px #8800ff; }
+        .skill-box.ninja-ready { background: #8800ff; box-shadow: 0 0 8px #8800ff; }
 
         .overlay-screen { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
@@ -348,6 +357,7 @@
 
         // ★修正: ブーツらしい形に修正
         const shoeShape = new THREE.Shape();
+        // かかとからスタート
         shoeShape.moveTo(-0.6, 0.8); // Top back
         shoeShape.lineTo(-0.6, 0.0); // Heel bottom
         shoeShape.lineTo(0.6, 0.0);  // Toe bottom
@@ -417,6 +427,7 @@
             this.rotateGroup = new THREE.Group(); 
             this.rotateGroup.add(shoeMesh);
             this.mesh.add(this.rotateGroup);
+            // const light = new THREE.PointLight(0x00ccff, 1.5, 8); // 軽量化のためライト削除
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 2.0;
@@ -432,6 +443,7 @@
             shieldMesh.scale.set(1.5, 1.5, 1.5);
             this.rotateGroup = new THREE.Group(); this.rotateGroup.add(shieldMesh);
             this.mesh.add(this.rotateGroup);
+            // const light = new THREE.PointLight(0x00ff88, 1.5, 8); // 軽量化のためライト削除
         }
         update(dt, time) {
             this.rotateGroup.rotation.y += dt * 1.5;
@@ -456,7 +468,7 @@
         }
     }
 
-    // 残像クラス
+    // 残像クラス (軽量化: 生成頻度低減)
     class Afterimage {
         constructor(originalMesh) {
             this.mesh = originalMesh.clone();
@@ -630,14 +642,8 @@
             moveIndicator.rotation.x = -Math.PI/2; moveIndicator.position.y = 0.5; scene.add(moveIndicator);
             
             clock = new THREE.Clock(); raycaster = new THREE.Raycaster(); mouse = new THREE.Vector2();
-            window.addEventListener('resize', onResize); window.addEventListener('contextmenu', onRightClick); // contextmenu はメニュー阻止
-            
-            // ★変更: マウスイベントリスナー
-            window.addEventListener('mousedown', onMouseDown);
-            window.addEventListener('mouseup', onMouseUp);
-            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('resize', onResize); window.addEventListener('contextmenu', onRightClick);
             window.addEventListener('keydown', onKeyDown);
-
             document.getElementById('start-btn').addEventListener('click', startGame);
             document.getElementById('retry-btn').addEventListener('click', retryGame);
             document.getElementById('menu-btn').addEventListener('click', goToMenu);
@@ -662,6 +668,11 @@
             slider.addEventListener('input', (e) => {
                 soundManager.setVolume(e.target.value / 100);
             });
+
+            // ★修正: 右クリックでの移動をサポート
+            document.addEventListener('mousedown', onMouseDown);
+            document.addEventListener('mouseup', onMouseUp);
+            document.addEventListener('mousemove', onMouseMove);
 
             document.addEventListener('click', () => {
                 if (!gameActive && !soundManager.isMuted) {
