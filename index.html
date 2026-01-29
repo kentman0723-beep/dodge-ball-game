@@ -117,7 +117,7 @@
             border-radius: 25px;
             border: 2px solid rgba(255, 173, 214, 0.8);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 320px;
+            width: 440px;
             backdrop-filter: blur(4px);
         }
 
@@ -154,8 +154,15 @@
         }
 
         @keyframes ultimate-pulse {
-            from { box-shadow: 0 0 8px #cc00ff; transform: scale(1.0); }
-            to { box-shadow: 0 0 20px #ff00ff; transform: scale(1.1); }
+            from {
+                box-shadow: 0 0 8px #cc00ff;
+                transform: scale(1.0);
+            }
+
+            to {
+                box-shadow: 0 0 20px #ff00ff;
+                transform: scale(1.1);
+            }
         }
 
         .status-text {
@@ -195,7 +202,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 90px;
+            min-width: 80px;
             white-space: nowrap;
         }
 
@@ -266,7 +273,7 @@
             border-radius: 20px;
             padding: 15px 20px;
             text-align: left;
-            width: 340px;
+            width: 380px;
             box-shadow: 0 5px 15px rgba(100, 200, 255, 0.2);
             color: #555;
         }
@@ -694,8 +701,15 @@
         }
 
         @keyframes pulse-ultimate {
-            from { box-shadow: 0 4px 15px rgba(200, 0, 255, 0.5); transform: scale(1.0); }
-            to { box-shadow: 0 4px 25px rgba(255, 0, 255, 0.8); transform: scale(1.1); }
+            from {
+                box-shadow: 0 4px 15px rgba(200, 0, 255, 0.5);
+                transform: scale(1.0);
+            }
+
+            to {
+                box-shadow: 0 4px 25px rgba(255, 0, 255, 0.8);
+                transform: scale(1.1);
+            }
         }
 
         /* ストップボタン */
@@ -868,7 +882,8 @@
                 <div class="control-row"><span class="key">E</span> ブリンク (120秒後)</div>
                 <div style="font-size:13px; margin-left: 5px;">瞬間移動＆無敵 (CD:3秒)</div>
                 <div class="control-row" style="margin-top:8px;"><span class="key">R</span> アルティメット (150秒後)</div>
-                <div style="font-size:13px; margin-left: 5px; color: #cc00ff; font-weight: 900;">全方位の敵を粉砕！ (CD:10秒)</div>
+                <div style="font-size:13px; margin-left: 5px; color: #cc00ff; font-weight: 900;">全方位の敵を粉砕！ (CD:10秒)
+                </div>
             </div>
 
             <!-- アイテム説明 -->
@@ -1048,11 +1063,12 @@
             basePlayerSpeed: 24, cameraHeight: 50, cameraOffsetZ: 40,
             ballRadius: 1.5, baseBallSpeedMin: 15, baseBallSpeedMax: 24, spawnDistance: 350,
             speedItemInterval: 3.0, speedBoostAmount: 3.0, shieldItemInterval: 15.0,
-            skillUnlockTimeQ: 60.0, skillUnlockTimeW: 100.0, skillUnlockTimeE: 120.0, skillUnlockTimeR: 150.0,
-            qCooldown: 1.0, wCooldown: 2.0, eCooldown: 3.0, rCooldown: 10.0,
+            skillUnlockTimeQ: 0.0, skillUnlockTimeW: 0.0, skillUnlockTimeE: 0.0, skillUnlockTimeR: 0.0,
+            qCooldown: 1.0, wCooldown: 2.0, eCooldown: 3.0, rCooldown: 15.0,
             wDuration: 3.0, eDuration: 0.15, // ブリンクなので短く
             dashSpeedMultiplier: 8.0, // 速度倍率アップ
-            ultimateRange: 40.0 // アルティメットの射程
+            ultimateRange: 60.0, // アルティメットの射程を少しアップ
+            rDuration: 3.0 // 3秒間持続
         };
 
         let scene, camera, renderer, clock, raycaster, mouse;
@@ -1068,6 +1084,7 @@
 
         let qUnlocked = false, wUnlocked = false, eUnlocked = false, rUnlocked = false;
         let qCoolTimer = 0, wCoolTimer = 0, eCoolTimer = 0, rCoolTimer = 0;
+        let rSkillActive = false, rSkillTimer = 0;
 
         let targetPos = new THREE.Vector3();
         let isRightMouseDown = false; // マウス状態管理
@@ -1136,6 +1153,15 @@
 
             // アルティメット用マテリアル
             Assets.materials.ultimateWave = new THREE.MeshBasicMaterial({ color: 0xcc00ff, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+            Assets.materials.ultimateBeam = new THREE.MeshBasicMaterial({
+                color: 0x9900cc,
+                transparent: true,
+                opacity: 0.4,
+                side: THREE.DoubleSide
+            });
+            Assets.geometries.beam = new THREE.CylinderGeometry(0.5, 2.0, 1, 8);
+            Assets.geometries.beam.rotateX(Math.PI / 2);
+            Assets.geometries.beam.translate(0, 0, 0.5);
         }
 
         function createTexture(type) {
@@ -1244,33 +1270,29 @@
             }
         }
 
-        // アルティメットエフェクト用クラス
-        class UltimateEffect {
-            constructor(pos) {
-                this.mesh = new THREE.Mesh(
-                    new THREE.RingGeometry(0.1, 1.0, 64),
-                    Assets.materials.ultimateWave.clone()
-                );
-                this.mesh.rotation.x = -Math.PI / 2;
-                this.mesh.position.copy(pos);
-                this.mesh.position.y = 0.5;
-                this.life = 0.8; this.maxLife = 0.8;
+        // アルティメットエフェクト用クラス (ビーム)
+        class UltimateBeam {
+            constructor(parent, angleOffset) {
+                this.mesh = new THREE.Mesh(Assets.geometries.beam, Assets.materials.ultimateBeam);
+                this.angleOffset = angleOffset;
+                this.parent = parent;
                 scene.add(this.mesh);
             }
-            update(dt) {
-                this.life -= dt;
-                const ratio = (this.maxLife - this.life) / this.maxLife;
-                const scale = ratio * CONFIG.ultimateRange * 2;
-                this.mesh.scale.set(scale, scale, 1);
-                this.mesh.material.opacity = 0.6 * (this.life / this.maxLife);
-                if (this.life <= 0) {
-                    disposeObject(this.mesh);
-                    return false;
-                }
-                return true;
+            update(time) {
+                const angle = time * 3 + this.angleOffset;
+                const range = CONFIG.ultimateRange;
+                this.mesh.position.copy(this.parent.position);
+                this.mesh.position.y = 2.5;
+                this.mesh.rotation.y = angle;
+                this.mesh.scale.set(1, 1, range);
+                // 明滅を削除し、安定した表示に変更
+                this.mesh.material.opacity = 0.4;
+            }
+            remove() {
+                disposeObject(this.mesh);
             }
         }
-        let ultimateEffects = [];
+        let ultimateBeams = [];
 
         class StickmanModel {
             constructor() {
@@ -1532,6 +1554,8 @@
 
             qUnlocked = false; wUnlocked = false; eUnlocked = false; rUnlocked = false;
             qCoolTimer = 0; wCoolTimer = 0; eCoolTimer = 0; rCoolTimer = 0;
+            rSkillActive = false; rSkillTimer = 0;
+            ultimateBeams.forEach(b => b.remove()); ultimateBeams = [];
             updateSkillUI();
         }
 
@@ -1568,6 +1592,7 @@
 
             const rEl = document.getElementById('skill-r');
             if (!rUnlocked) { rEl.className = 'skill-box cooldown'; rEl.innerText = `R: ${(Math.max(0, CONFIG.skillUnlockTimeR - survivalTime)).toFixed(0)}秒後解禁`; }
+            else if (rSkillActive) { rEl.className = 'skill-box active'; rEl.innerText = "★BEAM ACTIVE★"; }
             else if (rCoolTimer > 0) { rEl.className = 'skill-box cooldown'; rEl.innerText = `R: ${rCoolTimer.toFixed(1)}`; }
             else { rEl.className = 'skill-box ultimate-ready'; rEl.innerText = "★R: READY★"; }
         }
@@ -1634,20 +1659,13 @@
         }
 
         function activateRSkill() {
-            rCoolTimer = CONFIG.rCooldown;
-            ultimateEffects.push(new UltimateEffect(player.mesh.position));
+            rSkillActive = true;
+            rSkillTimer = CONFIG.rDuration;
             soundManager.play('ultimate');
-            
-            // 範囲内の敵を消去
-            for (let j = skills.length - 1; j >= 0; j--) {
-                const enemy = skills[j];
-                const dist = player.mesh.position.distanceTo(enemy.mesh.position);
-                if (dist < CONFIG.ultimateRange) {
-                    if (enemy.type !== 'black') {
-                        disposeObject(enemy.mesh);
-                        skills.splice(j, 1);
-                    }
-                }
+
+            // ビーム生成 (全方位 8本)
+            for (let i = 0; i < 8; i++) {
+                ultimateBeams.push(new UltimateBeam(player.mesh, (i / 8) * Math.PI * 2));
             }
         }
 
@@ -1901,6 +1919,9 @@
                 if (!rUnlocked) {
                     btnR.className = 'mobile-skill-btn locked';
                     btnR.querySelector('.skill-status').textContent = `${Math.max(0, CONFIG.skillUnlockTimeR - survivalTime).toFixed(0)}s`;
+                } else if (rSkillActive) {
+                    btnR.className = 'mobile-skill-btn ready';
+                    btnR.querySelector('.skill-status').textContent = 'ACTIVE';
                 } else if (rCoolTimer > 0) {
                     btnR.className = 'mobile-skill-btn locked';
                     btnR.querySelector('.skill-status').textContent = `${rCoolTimer.toFixed(1)}s`;
@@ -1947,7 +1968,33 @@
                 if (!eUnlocked && survivalTime >= CONFIG.skillUnlockTimeE) { eUnlocked = true; soundManager.play('shield'); }
                 if (!rUnlocked && survivalTime >= CONFIG.skillUnlockTimeR) { rUnlocked = true; soundManager.play('shield'); }
                 if (qCoolTimer > 0) qCoolTimer -= delta; if (wCoolTimer > 0) wCoolTimer -= delta;
-                if (eCoolTimer > 0) eCoolTimer -= delta; if (rCoolTimer > 0) rCoolTimer -= delta;
+                if (eCoolTimer > 0) eCoolTimer -= delta;
+                if (rCoolTimer > 0 && !rSkillActive) rCoolTimer -= delta;
+
+                if (rSkillActive) {
+                    rSkillTimer -= delta;
+                    // ビーム更新
+                    ultimateBeams.forEach(b => b.update(time));
+
+                    // 持続的な敵消去
+                    for (let j = skills.length - 1; j >= 0; j--) {
+                        const enemy = skills[j];
+                        const dist = player.mesh.position.distanceTo(enemy.mesh.position);
+                        if (dist < CONFIG.ultimateRange) {
+                            if (enemy.type !== 'black') {
+                                disposeObject(enemy.mesh);
+                                skills.splice(j, 1);
+                            }
+                        }
+                    }
+
+                    if (rSkillTimer <= 0) {
+                        rSkillActive = false;
+                        rCoolTimer = CONFIG.rCooldown;
+                        ultimateBeams.forEach(b => b.remove());
+                        ultimateBeams = [];
+                    }
+                }
                 if (wSkillShieldActive) {
                     wSkillTimer -= delta;
                     if (wSkillTimer <= 0) { wSkillShieldActive = false; player.setWShieldVisible(false); wCoolTimer = CONFIG.wCooldown; }
@@ -1963,11 +2010,6 @@
                 updateSkillUI();
                 updateMobileMovement(delta);
                 updateMobileSkillUI();
-
-                // アルティメットエフェクト更新
-                for (let i = ultimateEffects.length - 1; i >= 0; i--) {
-                    if (!ultimateEffects[i].update(delta)) ultimateEffects.splice(i, 1);
-                }
 
                 const dist = player.mesh.position.distanceTo(targetPos);
                 if (dist > 0.5) {
