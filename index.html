@@ -145,6 +145,19 @@
             margin-top: 5px;
         }
 
+        /* アルティメットスキル特有のスタイル */
+        .skill-box.ultimate-ready {
+            background: linear-gradient(135deg, #8800ff, #cc00ff);
+            box-shadow: 0 0 12px #cc00ff;
+            border: 1px solid #fff;
+            animation: ultimate-pulse 1.5s infinite alternate;
+        }
+
+        @keyframes ultimate-pulse {
+            from { box-shadow: 0 0 8px #cc00ff; transform: scale(1.0); }
+            to { box-shadow: 0 0 20px #ff00ff; transform: scale(1.1); }
+        }
+
         .status-text {
             font-size: 14px;
             font-weight: 900;
@@ -671,6 +684,20 @@
             background: linear-gradient(135deg, #8800ff, #6600cc);
         }
 
+        #mobile-btn-r {
+            background: linear-gradient(135deg, rgba(200, 0, 255, 0.8), rgba(150, 0, 200, 0.8));
+        }
+
+        #mobile-btn-r.ready {
+            background: linear-gradient(135deg, #cc00ff, #aa00ee);
+            animation: pulse-ultimate 1.0s infinite alternate;
+        }
+
+        @keyframes pulse-ultimate {
+            from { box-shadow: 0 4px 15px rgba(200, 0, 255, 0.5); transform: scale(1.0); }
+            to { box-shadow: 0 4px 25px rgba(255, 0, 255, 0.8); transform: scale(1.1); }
+        }
+
         /* ストップボタン */
         #mobile-btn-stop {
             position: absolute;
@@ -838,8 +865,10 @@
                 <div style="font-size:13px; margin-left: 5px;">ピンクのボールを破壊！(CD:1秒)</div>
                 <div class="control-row" style="margin-top:8px;"><span class="key">W</span> バリア (100秒後)</div>
                 <div style="font-size:13px; margin-left: 5px;">3秒間守るシールド展開 (CD:2秒)</div>
-                <div class="control-row" style="margin-top:8px;"><span class="key">E</span> ブリンク (120秒後)</div>
-                <div style="font-size:13px; margin-left: 5px;">残像を残して瞬間移動＆無敵 (CD:3秒)</div>
+                <div class="control-row"><span class="key">E</span> ブリンク (120秒後)</div>
+                <div style="font-size:13px; margin-left: 5px;">瞬間移動＆無敵 (CD:3秒)</div>
+                <div class="control-row" style="margin-top:8px;"><span class="key">R</span> アルティメット (150秒後)</div>
+                <div style="font-size:13px; margin-left: 5px; color: #cc00ff; font-weight: 900;">全方位の敵を粉砕！ (CD:10秒)</div>
             </div>
 
             <!-- アイテム説明 -->
@@ -892,6 +921,7 @@
                 <div id="skill-q" class="skill-box">Q: 60秒後...</div>
                 <div id="skill-w" class="skill-box">W: 100秒後...</div>
                 <div id="skill-e" class="skill-box">E: 120秒後...</div>
+                <div id="skill-r" class="skill-box">R: 150秒後...</div>
             </div>
 
             <div class="status-line">
@@ -915,6 +945,10 @@
 
         <!-- スキルボタン -->
         <div id="skill-buttons">
+            <button id="mobile-btn-r" class="mobile-skill-btn locked">
+                <span class="skill-label">R</span>
+                <span class="skill-status">---</span>
+            </button>
             <button id="mobile-btn-e" class="mobile-skill-btn locked">
                 <span class="skill-label">E</span>
                 <span class="skill-status">---</span>
@@ -967,7 +1001,7 @@
                 this.files = {
                     bgm: 'sounds/bgm.mp3', start: 'sounds/start.mp3', item: 'sounds/item.mp3',
                     shield: 'sounds/shield.mp3', break: 'sounds/break.mp3', defeat: 'sounds/defeat.mp3',
-                    menu: 'sounds/menu.mp3', skill: 'sounds/skill.mp3'
+                    menu: 'sounds/menu.mp3', skill: 'sounds/skill.mp3', ultimate: 'sounds/skill.R.mp3'
                 };
                 this.isMuted = false; this.masterVolume = 0.5;
             }
@@ -1014,10 +1048,11 @@
             basePlayerSpeed: 24, cameraHeight: 50, cameraOffsetZ: 40,
             ballRadius: 1.5, baseBallSpeedMin: 15, baseBallSpeedMax: 24, spawnDistance: 350,
             speedItemInterval: 3.0, speedBoostAmount: 3.0, shieldItemInterval: 15.0,
-            skillUnlockTimeQ: 60.0, skillUnlockTimeW: 100.0, skillUnlockTimeE: 120.0,
-            qCooldown: 1.0, wCooldown: 2.0, eCooldown: 3.0,
+            skillUnlockTimeQ: 60.0, skillUnlockTimeW: 100.0, skillUnlockTimeE: 120.0, skillUnlockTimeR: 150.0,
+            qCooldown: 1.0, wCooldown: 2.0, eCooldown: 3.0, rCooldown: 10.0,
             wDuration: 3.0, eDuration: 0.15, // ブリンクなので短く
-            dashSpeedMultiplier: 8.0 // 速度倍率アップ
+            dashSpeedMultiplier: 8.0, // 速度倍率アップ
+            ultimateRange: 40.0 // アルティメットの射程
         };
 
         let scene, camera, renderer, clock, raycaster, mouse;
@@ -1031,8 +1066,8 @@
         let itemShieldActive = false, wSkillShieldActive = false, wSkillTimer = 0;
         let isDashing = false, dashTimer = 0;
 
-        let qUnlocked = false, wUnlocked = false, eUnlocked = false;
-        let qCoolTimer = 0, wCoolTimer = 0, eCoolTimer = 0;
+        let qUnlocked = false, wUnlocked = false, eUnlocked = false, rUnlocked = false;
+        let qCoolTimer = 0, wCoolTimer = 0, eCoolTimer = 0, rCoolTimer = 0;
 
         let targetPos = new THREE.Vector3();
         let isRightMouseDown = false; // マウス状態管理
@@ -1098,6 +1133,9 @@
 
             Assets.geometries.shield = new THREE.SphereGeometry(2.5, 24, 24);
             Assets.materials.shield = new THREE.MeshBasicMaterial({ color: 0x00aaff, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
+
+            // アルティメット用マテリアル
+            Assets.materials.ultimateWave = new THREE.MeshBasicMaterial({ color: 0xcc00ff, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
         }
 
         function createTexture(type) {
@@ -1205,6 +1243,34 @@
                 return true;
             }
         }
+
+        // アルティメットエフェクト用クラス
+        class UltimateEffect {
+            constructor(pos) {
+                this.mesh = new THREE.Mesh(
+                    new THREE.RingGeometry(0.1, 1.0, 64),
+                    Assets.materials.ultimateWave.clone()
+                );
+                this.mesh.rotation.x = -Math.PI / 2;
+                this.mesh.position.copy(pos);
+                this.mesh.position.y = 0.5;
+                this.life = 0.8; this.maxLife = 0.8;
+                scene.add(this.mesh);
+            }
+            update(dt) {
+                this.life -= dt;
+                const ratio = (this.maxLife - this.life) / this.maxLife;
+                const scale = ratio * CONFIG.ultimateRange * 2;
+                this.mesh.scale.set(scale, scale, 1);
+                this.mesh.material.opacity = 0.6 * (this.life / this.maxLife);
+                if (this.life <= 0) {
+                    disposeObject(this.mesh);
+                    return false;
+                }
+                return true;
+            }
+        }
+        let ultimateEffects = [];
 
         class StickmanModel {
             constructor() {
@@ -1464,8 +1530,8 @@
             player.setColor(false); player.setWShieldVisible(false);
             updateSpeedUI(); updateShieldUI();
 
-            qUnlocked = false; wUnlocked = false; eUnlocked = false;
-            qCoolTimer = 0; wCoolTimer = 0; eCoolTimer = 0;
+            qUnlocked = false; wUnlocked = false; eUnlocked = false; rUnlocked = false;
+            qCoolTimer = 0; wCoolTimer = 0; eCoolTimer = 0; rCoolTimer = 0;
             updateSkillUI();
         }
 
@@ -1499,6 +1565,11 @@
             else if (isDashing) { eEl.className = 'skill-box active'; eEl.innerText = `E: DASHING`; }
             else if (eCoolTimer > 0) { eEl.className = 'skill-box cooldown'; eEl.innerText = `E: ${eCoolTimer.toFixed(1)}`; }
             else { eEl.className = 'skill-box ninja-ready'; eEl.innerText = "E: READY"; }
+
+            const rEl = document.getElementById('skill-r');
+            if (!rUnlocked) { rEl.className = 'skill-box cooldown'; rEl.innerText = `R: ${(Math.max(0, CONFIG.skillUnlockTimeR - survivalTime)).toFixed(0)}秒後解禁`; }
+            else if (rCoolTimer > 0) { rEl.className = 'skill-box cooldown'; rEl.innerText = `R: ${rCoolTimer.toFixed(1)}`; }
+            else { rEl.className = 'skill-box ultimate-ready'; rEl.innerText = "★R: READY★"; }
         }
 
         function updateCamera() {
@@ -1525,6 +1596,9 @@
             }
             if ((e.key === 'e' || e.key === 'E') && eUnlocked && eCoolTimer <= 0 && !isDashing) {
                 activateESkill();
+            }
+            if ((e.key === 'r' || e.key === 'R') && rUnlocked && rCoolTimer <= 0) {
+                activateRSkill();
             }
         }
 
@@ -1557,6 +1631,24 @@
             targetPos.z = Math.max(-CONFIG.mapLimit, Math.min(CONFIG.mapLimit, targetPos.z));
             player.isMoving = true;
             soundManager.play('shield');
+        }
+
+        function activateRSkill() {
+            rCoolTimer = CONFIG.rCooldown;
+            ultimateEffects.push(new UltimateEffect(player.mesh.position));
+            soundManager.play('ultimate');
+            
+            // 範囲内の敵を消去
+            for (let j = skills.length - 1; j >= 0; j--) {
+                const enemy = skills[j];
+                const dist = player.mesh.position.distanceTo(enemy.mesh.position);
+                if (dist < CONFIG.ultimateRange) {
+                    if (enemy.type !== 'black') {
+                        disposeObject(enemy.mesh);
+                        skills.splice(j, 1);
+                    }
+                }
+            }
         }
 
         // ★新規: 共通ターゲット更新
@@ -1719,13 +1811,13 @@
                 }, { passive: false });
             }
 
-            // スキルボタン E
-            const btnE = document.getElementById('mobile-btn-e');
-            if (btnE) {
-                btnE.addEventListener('touchstart', (e) => {
+            // スキルボタン R
+            const btnR = document.getElementById('mobile-btn-r');
+            if (btnR) {
+                btnR.addEventListener('touchstart', (e) => {
                     e.preventDefault();
-                    if (gameActive && eUnlocked && eCoolTimer <= 0 && !isDashing) {
-                        activateESkill();
+                    if (gameActive && rUnlocked && rCoolTimer <= 0) {
+                        activateRSkill();
                     }
                 }, { passive: false });
             }
@@ -1802,6 +1894,21 @@
                 btnE.className = 'mobile-skill-btn ready';
                 btnE.querySelector('.skill-status').textContent = 'READY';
             }
+
+            // R スキル
+            const btnR = document.getElementById('mobile-btn-r');
+            if (btnR) {
+                if (!rUnlocked) {
+                    btnR.className = 'mobile-skill-btn locked';
+                    btnR.querySelector('.skill-status').textContent = `${Math.max(0, CONFIG.skillUnlockTimeR - survivalTime).toFixed(0)}s`;
+                } else if (rCoolTimer > 0) {
+                    btnR.className = 'mobile-skill-btn locked';
+                    btnR.querySelector('.skill-status').textContent = `${rCoolTimer.toFixed(1)}s`;
+                } else {
+                    btnR.className = 'mobile-skill-btn ready';
+                    btnR.querySelector('.skill-status').textContent = 'READY';
+                }
+            }
         }
 
         function manageSpawns(dt) {
@@ -1838,7 +1945,9 @@
                 if (!qUnlocked && survivalTime >= CONFIG.skillUnlockTimeQ) { qUnlocked = true; soundManager.play('shield'); }
                 if (!wUnlocked && survivalTime >= CONFIG.skillUnlockTimeW) { wUnlocked = true; soundManager.play('shield'); }
                 if (!eUnlocked && survivalTime >= CONFIG.skillUnlockTimeE) { eUnlocked = true; soundManager.play('shield'); }
+                if (!rUnlocked && survivalTime >= CONFIG.skillUnlockTimeR) { rUnlocked = true; soundManager.play('shield'); }
                 if (qCoolTimer > 0) qCoolTimer -= delta; if (wCoolTimer > 0) wCoolTimer -= delta;
+                if (eCoolTimer > 0) eCoolTimer -= delta; if (rCoolTimer > 0) rCoolTimer -= delta;
                 if (wSkillShieldActive) {
                     wSkillTimer -= delta;
                     if (wSkillTimer <= 0) { wSkillShieldActive = false; player.setWShieldVisible(false); wCoolTimer = CONFIG.wCooldown; }
@@ -1854,6 +1963,11 @@
                 updateSkillUI();
                 updateMobileMovement(delta);
                 updateMobileSkillUI();
+
+                // アルティメットエフェクト更新
+                for (let i = ultimateEffects.length - 1; i >= 0; i--) {
+                    if (!ultimateEffects[i].update(delta)) ultimateEffects.splice(i, 1);
+                }
 
                 const dist = player.mesh.position.distanceTo(targetPos);
                 if (dist > 0.5) {
